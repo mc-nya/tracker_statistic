@@ -11,10 +11,10 @@ for k = 1:size(record_crash,2)
         saveas(2,['../statistic/' num2str(count) '.fig']);
         saveas(1,['../trace/' num2str(count) '.png']);
         saveas(1,['../trace/' num2str(count) '.fig']);
-        saveas(4,['../statistic_form_start/' num2str(count) '.png']);
-        saveas(4,['../statistic_form_start/' num2str(count) '.fig']);
-        saveas(3,['../trace_form_start/' num2str(count) '.png']);
-        saveas(3,['../trace_form_start/' num2str(count) '.fig']);
+        saveas(4,['../statistic_from_start/' num2str(count) '.png']);
+        saveas(4,['../statistic_from_start/' num2str(count) '.fig']);
+        saveas(3,['../trace_from_start/' num2str(count) '.png']);
+        saveas(3,['../trace_from_start/' num2str(count) '.fig']);
 
         t=0;
         %k

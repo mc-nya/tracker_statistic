@@ -71,6 +71,20 @@ id=record_crash(k).id;
     
     dist_s1_crash_point=[];
     
+    r1=[];
+    av1=[];
+    for i=2:min(size(acc1,2)-1,dur_time+10)
+        s1=states1(1:3,i);
+        s1_past=states1(1:3,i-1);
+        s1_next=states1(1:3,i+1);
+        vec1=s1-s1_past;
+        vec2=s1_next-s1_past;
+        vec3=s1_next-s1;
+        sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
+        av1=[av1; asin(sin_alpha)];
+        r1=[r1; norm(vec3)/(2*sin_alpha)];
+    end
+    
     for i=2:min(size(acc1,2),dur_time+10)
         %==========简记变量初始化=========
         s1=states1(1:3,i);
@@ -107,6 +121,21 @@ id=record_crash(k).id;
     v2_ang=[];
     acc2_ang=[];
     dist_s2_crash_point=[];
+    
+    r2=[];
+    av2=[];
+    for i=2:min(size(acc2,2)-1,dur_time+10)
+        s2=states2(1:3,i);
+        s2_past=states2(1:3,i-1);
+        s2_next=states2(1:3,i+1);
+        vec1=s2-s2_past;
+        vec2=s2_next-s2_past;
+        vec3=s2_next-s2;
+        sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
+        av2=[av2; asin(sin_alpha)];
+        r2=[r2; norm(vec3)/(2*sin_alpha)];
+    end
+    
     for i=2:min(size(acc2,2),dur_time+10)
         s2=states2(1:3,i);
         s2_1=states2(1:3,i-1);
@@ -185,18 +214,18 @@ id=record_crash(k).id;
     line([t_end-t_start t_end-t_start],[0 max(max(acc1_ang),max(acc2_ang))],'color','k');
     %legend('First','Second');
     
-    subplot(3,3,7);
-    hold off;
-    plot(v1_on_v1_past,'r')
-    hold on;
-    plot(v2_on_v2_1,'b');
-    xlabel('time(frame)');
-    ylabel('speed(mm/frame)');
-    title('速度在上一帧速度上的投影长度');
-    line([t_end-t_start t_end-t_start],[min(min(v1_on_v1_past),min(v2_on_v2_1)) max(max(v1_on_v1_past),max(v2_on_v2_1))],'color','k');
-    %legend('First','Second');
+%     subplot(3,3,7);
+%     hold off;
+%     plot(v1_on_v1_past,'r')
+%     hold on;
+%     plot(v2_on_v2_1,'b');
+%     xlabel('time(frame)');
+%     ylabel('speed(mm/frame)');
+%     title('速度在上一帧速度上的投影长度');
+%     line([t_end-t_start t_end-t_start],[min(min(v1_on_v1_past),min(v2_on_v2_1)) max(max(v1_on_v1_past),max(v2_on_v2_1))],'color','k');
+%     %legend('First','Second');
     
-    subplot(3,3,8);
+    subplot(3,3,7);
     hold off;
     plot(acc1_on_v1_past,'r')
     hold on;
@@ -229,7 +258,25 @@ id=record_crash(k).id;
     line([t_end-t_start t_end-t_start],[0 max(dist_s1_s2)],'color','k');
     %legend('First','Second');
     
+    subplot(3,3,8);
+    hold off;
+    plot(r1,'r');
+    hold on;
+    plot(r2,'b');
+    xlabel('time(frame)');
+    ylabel('R(mm)');
+    title('曲率半径');
+    line([t_end-t_start t_end-t_start],[0 max(max(r1),max(r2))],'color','k');
     
+    subplot(3,3,9);
+    hold off;
+    plot(av1,'r');
+    hold on;
+    plot(av2,'b');
+    xlabel('time(frame)');
+    ylabel('angle velocity(rad/frame)');
+    title('角速度大小');
+    line([t_end-t_start t_end-t_start],[0 max(max(av1),max(av2))],'color','k');
     output_args=1;
 end
 

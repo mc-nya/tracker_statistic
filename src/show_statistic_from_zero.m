@@ -80,6 +80,20 @@ function [ output_args ] = show_statistic_from_zero(  trackerW,record_crash, k  
     timer1=[];
     dist_s1_crash_point=[];
     
+    r1=[];
+    av1=[];
+    for i=2:min(size(acc1,2)-1,index_detect1+dur_time+10)
+        s1=states1(1:3,i);
+        s1_past=states1(1:3,i-1);
+        s1_next=states1(1:3,i+1);
+        vec1=s1-s1_past;
+        vec2=s1_next-s1_past;
+        vec3=s1_next-s1;
+        sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
+        av1=[av1; asin(sin_alpha)];
+        r1=[r1; norm(vec3)/(2*sin_alpha)];
+    end
+    
     for i=2:min(size(acc1,2),index_detect1+dur_time+10)
         %==========简记变量初始化=========
         s1=states1(1:3,i);
@@ -118,6 +132,21 @@ function [ output_args ] = show_statistic_from_zero(  trackerW,record_crash, k  
     acc2_ang=[];
     timer2=[];
     dist_s2_crash_point=[];
+    
+    r2=[];
+    av2=[];
+    for i=2:min(size(acc2,2)-1,index_detect2+dur_time+10)
+        s2=states2(1:3,i);
+        s2_past=states2(1:3,i-1);
+        s2_next=states2(1:3,i+1);
+        vec1=s2-s2_past;
+        vec2=s2_next-s2_past;
+        vec3=s2_next-s2;
+        sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
+        av2=[av2; asin(sin_alpha)];
+        r2=[r2; norm(vec3)/(2*sin_alpha)];
+    end
+    
     for i=2:min(size(acc2,2),index_detect2+dur_time+10)
         s2=states2(1:3,i);
         s2_1=states2(1:3,i-1);
@@ -214,19 +243,19 @@ function [ output_args ] = show_statistic_from_zero(  trackerW,record_crash, k  
     line([time_detect time_detect],[0 max(max(acc1_ang),max(acc2_ang))],'color','k');
     %legend('First','Second');
     
-    subplot(3,3,7);
-    hold off;
-    plot(timer1,v1_on_v1_past,'r')
-    hold on;
-    plot(timer2,v2_on_v2_1,'b');
-    xlabel('time(frame)');
-    ylabel('speed(mm/frame)');
-    title('速度在上一帧速度上的投影长度');
-    line([time_crash time_crash],[min(min(v1_on_v1_past),min(v2_on_v2_1))-1 max(max(v1_on_v1_past),max(v2_on_v2_1))+1],'color','k');
-    line([time_detect time_detect],[min(min(v1_on_v1_past),min(v2_on_v2_1))-1 max(max(v1_on_v1_past),max(v2_on_v2_1))+1],'color','k');
-    %legend('First','Second');
+%     subplot(3,3,7);
+%     hold off;
+%     plot(timer1,v1_on_v1_past,'r')
+%     hold on;
+%     plot(timer2,v2_on_v2_1,'b');
+%     xlabel('time(frame)');
+%     ylabel('speed(mm/frame)');
+%     title('速度在上一帧速度上的投影长度');
+%     line([time_crash time_crash],[min(min(v1_on_v1_past),min(v2_on_v2_1))-1 max(max(v1_on_v1_past),max(v2_on_v2_1))+1],'color','k');
+%     line([time_detect time_detect],[min(min(v1_on_v1_past),min(v2_on_v2_1))-1 max(max(v1_on_v1_past),max(v2_on_v2_1))+1],'color','k');
+%     %legend('First','Second');
     
-    subplot(3,3,8);
+    subplot(3,3,7);
     hold off;
     plot(timer1,acc1_on_v1_past,'r')
     hold on;
@@ -262,6 +291,28 @@ function [ output_args ] = show_statistic_from_zero(  trackerW,record_crash, k  
     line([time_detect time_detect],[0 max(dist_s1_s2)],'color','k');
     %legend('First','Second');
     
+    
+    subplot(3,3,8);
+    hold off;
+    plot(timer1(1:end-1),r1(1:size(timer1)-1),'r');
+    hold on;
+    plot(timer2(1:end-1),r2(1:size(timer2)-1),'b');
+    xlabel('time(frame)');
+    ylabel('R(mm)');
+    title('曲率半径');
+    line([time_crash time_crash],[0 max(max(r1),max(r2))],'color','k');
+    line([time_detect time_detect],[0 max(max(r1),max(r2))],'color','k');
+    
+    subplot(3,3,9);
+    hold off;
+    plot(timer1(1:end-1),av1(1:size(timer1)-1),'r');
+    hold on;
+    plot(timer2(1:end-1),av2(1:size(timer2)-1),'b');
+    xlabel('time(frame)');
+    ylabel('angle velocity(rad/frame)');
+    title('角速度大小');
+    line([time_crash time_crash],[0 max(max(av1),max(av2))],'color','k');
+    line([time_detect time_detect],[0 max(max(av1),max(av2))],'color','k');
     
     output_args=1;
 end
