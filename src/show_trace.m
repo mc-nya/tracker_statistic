@@ -41,7 +41,7 @@ function [ output_args ] = show_trace( trackerW,record_crash, k )
         plot3(states1(1,t_end-t_start+1),states1(2,t_end-t_start+1),states1(3,t_end-t_start+1),'r*');
     end
     if t_end-t_start+1<=size(states2,2)
-        plot3(states2(1,t_end-t_start+1),states2(2,t_end-t_start+1),states2(3,t_end-t_start+1),'g*');
+        plot3(states2(1,t_end-t_start+1),states2(2,t_end-t_start+1),states2(3,t_end-t_start+1),'b*');
     end
     %print carash position
     dur_time=record_crash(k).delta_time;
