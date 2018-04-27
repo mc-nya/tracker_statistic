@@ -68,22 +68,27 @@ id=record_crash(k).id;
     acc1_on_v1_past=[];
     v1_ang=[];
     acc1_ang=[];
-    
+    acc1_on_v1_past_norm=[];
     dist_s1_crash_point=[];
     
     r1=[];
     av1=[];
-    for i=2:min(size(acc1,2)-1,dur_time+10)
-        s1=states1(1:3,i);
-        s1_past=states1(1:3,i-1);
-        s1_next=states1(1:3,i+1);
-        vec1=s1-s1_past;
-        vec2=s1_next-s1_past;
-        vec3=s1_next-s1;
-        sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
-        av1=[av1; asin(sin_alpha)];
-        r1=[r1; norm(vec3)/(2*sin_alpha)];
-    end
+%     r1_verify=[];
+%     for i=2:min(size(acc1,2)-1,dur_time+10)
+%         s1=states1(1:3,i);
+%         s1_past=states1(1:3,i-1);
+%         s1_next=states1(1:3,i+1);
+%         vec1=s1-s1_past;
+%         vec2=s1_next-s1_past;
+%         vec3=s1_next-s1;
+% %         a=norm(vec1); b=norm(vec2); c=norm(vec3);
+% %         p=(a+b+c)/2;
+% %         rrr=(a*b*c)/(4*sqrt(p*(p-a)*(p-b)*(p-c)));
+% %         r1_verify=[r1_verify rrr];
+%         sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
+%         av1=[av1; asin(sin_alpha)];
+%         r1=[r1; norm(vec3)/(2*sin_alpha)];
+%     end
     
     for i=2:min(size(acc1,2),dur_time+10)
         %==========简记变量初始化=========
@@ -102,6 +107,11 @@ id=record_crash(k).id;
         v1_on_v1_past=[v1_on_v1_past; dot(v1,v1_past)/norm(v1_past)];
         %======计算加速度在在上一帧速度上投影大小====
         acc1_on_v1_past=[acc1_on_v1_past; dot(a1,v1_past)/norm(v1_past)];
+        %======计算加速度法向量================
+        acc1_on_v1_past_norm=[acc1_on_v1_past_norm; sqrt(norm(a1)^2-acc1_on_v1_past(end)^2)];
+        %===========计算运动曲率半径===============
+        r1=[r1 norm(v1)^2/acc1_on_v1_past_norm(end)];
+        
         
         %======计算速度相对上一帧速度的变化角度==========
         v1_ang=[v1_ang; acosd(dot(v1,v1_past)/norm(v1)/norm(v1_past))];
@@ -116,45 +126,50 @@ id=record_crash(k).id;
     
     v2_norm=[];
     acc2_norm=[];
-    v2_on_v2_1=[];
-    acc2_on_v2_1=[];
+    v2_on_v2_past=[];
+    acc2_on_v2_past=[];
     v2_ang=[];
     acc2_ang=[];
+    acc2_on_v2_past_norm=[];
     dist_s2_crash_point=[];
     
     r2=[];
     av2=[];
-    for i=2:min(size(acc2,2)-1,dur_time+10)
-        s2=states2(1:3,i);
-        s2_past=states2(1:3,i-1);
-        s2_next=states2(1:3,i+1);
-        vec1=s2-s2_past;
-        vec2=s2_next-s2_past;
-        vec3=s2_next-s2;
-        sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
-        av2=[av2; asin(sin_alpha)];
-        r2=[r2; norm(vec3)/(2*sin_alpha)];
-    end
+%     for i=2:min(size(acc2,2)-1,dur_time+10)
+%         s2=states2(1:3,i);
+%         s2_past=states2(1:3,i-1);
+%         s2_next=states2(1:3,i+1);
+%         vec1=s2-s2_past;
+%         vec2=s2_next-s2_past;
+%         vec3=s2_next-s2;
+%         sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
+%         av2=[av2; asin(sin_alpha)];
+%         r2=[r2; norm(vec3)/(2*sin_alpha)];
+%     end
     
     for i=2:min(size(acc2,2),dur_time+10)
         s2=states2(1:3,i);
         s2_1=states2(1:3,i-1);
         v2=velocity2(1:3,i);
-        v2_1=velocity2(1:3,i-1);
+        v2_past=velocity2(1:3,i-1);
         a2=acc2(1:3,i);
-        a2_1=acc2(1:3,i-1);
+        a2_past=acc2(1:3,i-1);
         %=====计算速度和加速度大小======
         v2_norm=[v2_norm; norm(velocity2(1:3,i))];
         acc2_norm=[acc2_norm; norm(acc2(1:3,i))];
         %=====计算速度在上一帧速度上投影大小====
-        v2_on_v2_1=[v2_on_v2_1; dot(v2,v2_1)/norm(v2_1)];
+        v2_on_v2_past=[v2_on_v2_past; dot(v2,v2_past)/norm(v2_past)];
         %======计算加速度在在上一帧速度上投影大小====
-        acc2_on_v2_1=[acc2_on_v2_1; dot(a2,v2_1)/norm(v2_1)];
+        acc2_on_v2_past=[acc2_on_v2_past; dot(a2,v2_past)/norm(v2_past)];
+        %======计算加速度法向量================
+        acc2_on_v2_past_norm=[acc2_on_v2_past_norm; sqrt(norm(a2)^2-(dot(a2,v2_past)/norm(v2_past))^2)];
+        %===========计算运动曲率半径===============
+        r2=[r2 norm(v2)^2/acc2_on_v2_past_norm(end)];
 
         %======计算速度相对上一帧速度的变化角度==========
-        v2_ang=[v2_ang; acosd(dot(v2,v2_1)/norm(v2)/norm(v2_1))];
+        v2_ang=[v2_ang; acosd(dot(v2,v2_past)/norm(v2)/norm(v2_past))];
         %======计算加速度相对上一帧加速度的变化角度==========
-        acc2_ang=[acc2_ang; acosd(dot(a2,a2_1)/norm(a2)/norm(a2_1))];
+        acc2_ang=[acc2_ang; acosd(dot(a2,a2_past)/norm(a2)/norm(a2_past))];
         
         %======计算和虚拟碰撞点的距离===========
         dist_s2_crash_point=[dist_s2_crash_point; norm(s2-p2_crash)];
@@ -229,11 +244,11 @@ id=record_crash(k).id;
     hold off;
     plot(acc1_on_v1_past,'r')
     hold on;
-    plot(acc2_on_v2_1,'b');
+    plot(acc2_on_v2_past,'b');
     xlabel('time(frame)');
     ylabel('acc(mm/frame^2)');
     title('加速度在上一帧速度上的投影长度');
-    line([t_end-t_start t_end-t_start],[min(min(acc1_on_v1_past),min(acc2_on_v2_1)) max(max(acc1_on_v1_past),max(acc2_on_v2_1))],'color','k');
+    line([t_end-t_start t_end-t_start],[min(min(acc1_on_v1_past),min(acc2_on_v2_past)) max(max(acc1_on_v1_past),max(acc2_on_v2_past))],'color','k');
     %legend('First','Second');
     
     subplot(3,3,3);
@@ -262,6 +277,7 @@ id=record_crash(k).id;
     hold off;
     plot(r1,'r');
     hold on;
+    %plot(r1_verify,'g');
     plot(r2,'b');
     xlabel('time(frame)');
     ylabel('R(mm)');
@@ -270,13 +286,13 @@ id=record_crash(k).id;
     
     subplot(3,3,9);
     hold off;
-    plot(av1,'r');
+    plot(acc1_on_v1_past_norm,'r');
     hold on;
-    plot(av2,'b');
+    plot(acc2_on_v2_past_norm,'b');
     xlabel('time(frame)');
     ylabel('angle velocity(rad/frame)');
     title('角速度大小');
-    line([t_end-t_start t_end-t_start],[0 max(max(av1),max(av2))],'color','k');
+    line([t_end-t_start t_end-t_start],[0 max(max(acc1_on_v1_past_norm),max(acc2_on_v2_past_norm))],'color','k');
     output_args=1;
 end
 
