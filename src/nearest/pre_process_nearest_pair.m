@@ -22,7 +22,11 @@ for i = 1:size(trackerW)
     end
 end
 
-%=============detect===============
+%------------------detect-------------------
+%parameters
+max_distance_two_flies=7;
+min_distance_other_flies=20;
+%start
 detect_set=[];
 for time=1:size(record_t,2)-1
     current_ids=record_t(time).id;
@@ -31,14 +35,14 @@ for time=1:size(record_t,2)-1
         dist_vec=current_states-repmat(current_states(:,current_fly),[1 size(current_states,2)]);
         dist=sum(dist_vec.^2,1);
         [result, index]=sort(dist,'ascend');
-        if size(find(result<2),2)==1 && size(find(result<7),2)==2 && size(find(result<27),2)==2
+        if size(find(result<2),2)==1 && size(find(result<max_distance_two_flies),2)==2 && size(find(result<min_distance_other_flies),2)==2
             detect_set=[detect_set;time, current_ids(current_fly), current_ids(index(2))];
             %current_ids(current_fly) 
             %current_ids(index(2))
         end
     end
 end    
-
+%make pair unique
 for index=1:size(detect_set,1)
     if(detect_set(index,2)>detect_set(index,3))
         k=detect_set(index,3);
