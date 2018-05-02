@@ -1,8 +1,8 @@
 count=0;
 for index=1:size(detect_set,1)
-    valid=show_trace(trackerW,detect_set(index,:),10);
+    valid=show_trace(trackerW,detect_set(index,:),15);
     if valid
-        show_statistic(trackerW,detect_set(index,:),10);
+        show_statistic(trackerW,detect_set(index,:),15);
         count=count+1;
         saveas(2,['../../statistic/' num2str(count) '.png']);
         saveas(2,['../../statistic/' num2str(count) '.fig']);
