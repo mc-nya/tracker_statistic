@@ -43,11 +43,11 @@ for time=1:size(record_t,2)-1
     end
 end    
 %make pair unique
-for index=1:size(detect_set,1)
-    if(detect_set(index,2)>detect_set(index,3))
-        k=detect_set(index,3);
-        detect_set(index,3)=detect_set(index,2);
-        detect_set(index,2)=k;
-    end
-end
-detect_set=unique(detect_set,'rows');
+% for index=1:size(detect_set,1)
+%     if(detect_set(index,2)>detect_set(index,3))
+%         k=detect_set(index,3);
+%         detect_set(index,3)=detect_set(index,2);
+%         detect_set(index,2)=k;
+%     end
+% end
+% detect_set=unique(detect_set,'rows');
