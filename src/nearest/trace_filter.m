@@ -29,7 +29,7 @@ function valid=singel_filter(trackerW, pair ,delta_time)
     filter_min_avg_dist=4;
     filter_min_dist=1;
     filter_time_delta=10;
-    filter_min_speed=1;
+    filter_min_speed=1.5;
     %------0. minium length to two sides-------
     if timer1(1)>time_nearest-delta_time || timer1(end)<time_nearest+delta_time
         valid=0;
