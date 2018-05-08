@@ -32,31 +32,13 @@ function valid = show_statistic(trackerW, pair ,delta_time)
     %start calculate
     v1_norm=[];
     acc1_norm=[];
-    v1_on_v1_past=[];
     acc1_on_v1_past=[];
     v1_ang=[];
     acc1_ang=[];
     acc1_on_v1_past_norm=[];
-    dist_s1_crash_point=[];
     
     r1=[];
-    av1=[];
-%     r1_verify=[];
-%     for i=2:min(size(acc1,2)-1,dur_time+10)
-%         s1=states1(1:3,i);
-%         s1_past=states1(1:3,i-1);
-%         s1_next=states1(1:3,i+1);
-%         vec1=s1-s1_past;
-%         vec2=s1_next-s1_past;
-%         vec3=s1_next-s1;
-% %         a=norm(vec1); b=norm(vec2); c=norm(vec3);
-% %         p=(a+b+c)/2;
-% %         rrr=(a*b*c)/(4*sqrt(p*(p-a)*(p-b)*(p-c)));
-% %         r1_verify=[r1_verify rrr];
-%         sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
-%         av1=[av1; asin(sin_alpha)];
-%         r1=[r1; norm(vec3)/(2*sin_alpha)];
-%     end
+    
     for i=1:size(acc1,2)
         v1=velocity1(1:3,i);
         v1_past=velocity1(1:3,i);%与加速度有关的用当前帧v
@@ -93,26 +75,12 @@ function valid = show_statistic(trackerW, pair ,delta_time)
     
     v2_norm=[];
     acc2_norm=[];
-    v2_on_v2_past=[];
     acc2_on_v2_past=[];
     v2_ang=[];
     acc2_ang=[];
     acc2_on_v2_past_norm=[];
-    dist_s2_crash_point=[];
-    
     r2=[];
-    av2=[];
-%     for i=2:min(size(acc2,2)-1,dur_time+10)
-%         s2=states2(1:3,i);
-%         s2_past=states2(1:3,i-1);
-%         s2_next=states2(1:3,i+1);
-%         vec1=s2-s2_past;
-%         vec2=s2_next-s2_past;
-%         vec3=s2_next-s2;
-%         sin_alpha=norm(cross(vec1,vec2))/(norm(vec1)*norm(vec2));
-%         av2=[av2; asin(sin_alpha)];
-%         r2=[r2; norm(vec3)/(2*sin_alpha)];
-%     end
+    
     for i=1:size(acc2,2)
         v2=velocity2(1:3,i);
         v2_past=velocity2(1:3,i);

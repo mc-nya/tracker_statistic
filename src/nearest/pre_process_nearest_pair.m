@@ -24,8 +24,8 @@ end
 
 %------------------detect-------------------
 %parameters
-max_distance_two_flies=7;
-min_distance_other_flies=20;
+max_distance_two_flies=10;
+min_distance_other_flies=25;
 %start
 detect_set=[];
 for time=1:size(record_t,2)-1
@@ -43,11 +43,11 @@ for time=1:size(record_t,2)-1
     end
 end    
 %make pair unique
-for index=1:size(detect_set,1)
-    if(detect_set(index,2)>detect_set(index,3))
-        k=detect_set(index,3);
-        detect_set(index,3)=detect_set(index,2);
-        detect_set(index,2)=k;
-    end
-end
-detect_set=unique(detect_set,'rows');
+% for index=1:size(detect_set,1)
+%     if(detect_set(index,2)>detect_set(index,3))
+%         k=detect_set(index,3);
+%         detect_set(index,3)=detect_set(index,2);
+%         detect_set(index,2)=k;
+%     end
+% end
+% detect_set=unique(detect_set,'rows');
