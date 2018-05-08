@@ -1,4 +1,4 @@
-function ret = trace_filter( trackerW,detect_set,delta_time )
+function [ ret ] = dist_velocity_filter( trackerW,detect_set,delta_time )
 
     ret=[];
     for index=1:size(detect_set)
@@ -30,8 +30,12 @@ function valid=singel_filter(trackerW, pair ,delta_time)
     filter_min_dist=1;
     filter_time_delta=10;
     filter_min_speed=1.5;
-    %------0. minium length to two sides-------
-    if timer1(1)>time_nearest-delta_time || timer1(end)<time_nearest+delta_time
+    %------0. too short trace ---------------
+    if size(timer1,2)<4 || size(timer2,2)<4
+        valid=0;
+        return;
+    end
+    if timer1(1)>time_nearest-delta_time || timer1(end)<time_nearest+2
         valid=0;
         return;
     end
@@ -81,4 +85,6 @@ function valid=singel_filter(trackerW, pair ,delta_time)
     end
     
     valid=1;
+
 end
+

@@ -66,7 +66,7 @@ for outer_index=1:size(detect_set_washed)
 
 end
 feature_vector=feature_v1_norm;
-portion=0.95;
+portion=0.90;
 
 [pc,score,latent,tsquare,explained] =pca(feature_vector);
 percentage_list=cumsum(latent)./sum(latent);
@@ -83,11 +83,11 @@ for i=1:size(diff_vec)
     dist_vec=[dist_vec norm(diff_vec(i,:))];
 end
 dist_median=median(dist_vec);
-selected_item=find(dist_vec<dist_median*2);
+selected_item=find(dist_vec<dist_median);
 selected_item=intersect(selected_item,find(feature_vector(:,1)-feature_vector(:,2)<0));
-%selected_item=intersect(selected_item,find(feature_vector(:,2)-feature_vector(:,3)>0));
-selected_item=intersect(selected_item,find(feature_vector(:,3)-feature_vector(:,4)>0));
-%selected_item=intersect(selected_item,find(feature_vector(:,4)-feature_vector(:,5)>0));
+selected_item=intersect(selected_item,find(feature_vector(:,2)-feature_vector(:,3)0));
+selected_item=intersect(selected_item,find(feature_vector(:,3)-feature_vector(:,4)<0));
+selected_item=intersect(selected_item,find(feature_vector(:,4)-feature_vector(:,5)>0));
  %------------------draw ----------------------
 
 %----------------using pca result, revise detect_set-----------
@@ -123,7 +123,7 @@ grid on;
 % plot3(median_vector(1),median_vector(2),median_vector(3),'bh');
 
 figure(3);
-feature_vector=feature_v1_norm;
+feature_vector=feature_acc1_on_v1_past_norm;
 hold on;
 for i=1:size(feature_vector)
     plot(feature_vector(i,:),'k');
