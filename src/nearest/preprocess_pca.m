@@ -85,8 +85,8 @@ end
 dist_median=median(dist_vec);
 selected_item=find(dist_vec<dist_median*2);
 selected_item=intersect(selected_item,find(feature_vector(:,1)-feature_vector(:,2)<0));
-%selected_item=intersect(selected_item,find(feature_vector(:,2)-feature_vector(:,3)>0));
-selected_item=intersect(selected_item,find(feature_vector(:,3)-feature_vector(:,4)>0));
+selected_item=intersect(selected_item,find(feature_vector(:,2)-feature_vector(:,3)>0));
+selected_item=intersect(selected_item,find(feature_vector(:,3)-feature_vector(:,4)<0));
 %selected_item=intersect(selected_item,find(feature_vector(:,4)-feature_vector(:,5)>0));
  %------------------draw ----------------------
 

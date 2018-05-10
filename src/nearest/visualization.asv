@@ -1,5 +1,5 @@
 count=0;
-feature_angle_distribution=[];
+feature_angle_
 for index=1:size(detect_set_washed,1)
     valid=show_trace(trackerW,detect_set_washed(index,:),15);
     if valid
