@@ -1,4 +1,5 @@
 function valid = show_statistic(trackerW, pair ,delta_time)
+    global feature_angle_distribution;
     time_nearest=pair(1);
     index1=pair(2);
     index2=pair(3);
@@ -128,7 +129,13 @@ function valid = show_statistic(trackerW, pair ,delta_time)
             norm_v2_on_v1=[norm_v2_on_v1 dot(v1,v2)/norm(v1)];
         end
     end
-    
+    tmp=zeros(delta_time*3,20);
+    for i=1:size(timer_both,2)-1
+        tmp_time=timer_both(i)-time_nearest+delta_time*2;
+        tmp_ang=floor(angl_v1_v2(i)/10)+1;
+        tmp(tmp_time,tmp_ang)=tmp(tmp_time,tmp_ang)+1;
+    end
+    feature_angle_distribution=feature_angle_distribution+tmp;
     %---------------------start draw---------------
     figure(2);
     subplot(3,3,1);
