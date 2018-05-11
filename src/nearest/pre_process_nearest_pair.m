@@ -24,8 +24,8 @@ end
 
 %------------------detect-------------------
 %parameters
-max_distance_two_flies=10;
-min_distance_other_flies=25;
+max_distance_two_flies=7;
+min_distance_other_flies=20;
 %start
 detect_set=[];
 for time=1:size(record_t,2)-1

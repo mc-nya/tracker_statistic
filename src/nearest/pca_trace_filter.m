@@ -24,11 +24,11 @@ function valid=singel_filter(trackerW, pair ,delta_time)
     velocity1=states1(1:3,2:end)-states1(1:3,1:end-1);
     velocity2=states2(1:3,2:end)-states2(1:3,1:end-1);
     
-    
+
     %-----------filter--------------
     filter_min_avg_dist=4;
-    filter_min_dist=1;
-    filter_time_delta=10;
+    filter_min_dist=0.05;
+    filter_time_delta=delta_time;
     filter_min_speed=1.5;
     %------0. minium length to two sides-------
     if timer1(1)>time_nearest-delta_time || timer1(end)<time_nearest+delta_time
