@@ -1,4 +1,4 @@
-delta_time=5;
+delta_time=12;
 detect_set_washed=pca_trace_filter(trackerW,detect_set,delta_time);
 feature_vector=[];
 feature_v1_norm=[];

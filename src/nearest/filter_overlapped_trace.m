@@ -5,17 +5,11 @@ function [ trackers_new ] = filter_overlapped_trace( trackers )
     k=[trackers(:).end]-[trackers(:).start];
     trackerW=trackers(k>10);
     trackers_new=[];
-    for i=1:size(trackerW,2)
+    for i=1:size(trackerW)
         flag=1;
         i
-        for j=1:size(trackerW,2)
+        for j=1:size(trackerW)
             if i~=j
-                if i==311 && j==312
-                    qwq=[];
-                end
-                if i==312 && j==311
-                    qwe=[];
-                end
                 valid=pair_filter(trackerW,[i j]);
                 if valid==0
                     flag=0;

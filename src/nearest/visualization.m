@@ -21,6 +21,6 @@ for index=delta_time-4:size(feature_angle_distribution,1)
     hold off;
     bar(feature_angle_distribution(index,:));
     title(['frame:' num2str(index-delta_time*2) 'interval: 10degree']);
-    saveas(3,['../../statistic/angle_' num2str(index-delta_time*2) '.png']);
-    saveas(3,['../../statistic/angle_' num2str(index-delta_time*2) '.fig']);
+    %saveas(3,['../../statistic/angle_' num2str(index-delta_time*2) '.png']);
+    %saveas(3,['../../statistic/angle_' num2str(index-delta_time*2) '.fig']);
 end
