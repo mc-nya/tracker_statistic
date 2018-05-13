@@ -1,0 +1,5 @@
+function [ v1_norm,acc1_norm, acc1_on_v1_past, v1_ang, acc1_ang,  ] = calc_trace_attribute( input_args )
+
+
+end
+

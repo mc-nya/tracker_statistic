@@ -6,8 +6,8 @@ function [ output_args ] = show_trace( trackerW,record_crash, k )
     t_end2=max(min(trackerW(id(2)).end,t_end),trackerW(id(2)).end);
     tracker1_start=trackerW(id(1)).start;
     tracker2_start=trackerW(id(2)).start;
-    states1=trackerW(id(1)).smoothed_states(1:3,t_start-tracker1_start+1:t_end1-tracker1_start+1);
-    states2=trackerW(id(2)).smoothed_states(1:3,t_start-tracker2_start+1:t_end2-tracker2_start+1);
+    states1=trackerW(id(1)).states(1:3,t_start-tracker1_start+1:t_end1-tracker1_start+1);
+    states2=trackerW(id(2)).states(1:3,t_start-tracker2_start+1:t_end2-tracker2_start+1);
     
     length=min(size(states1,2),size(states2,2));
     totaldist=0;

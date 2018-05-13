@@ -10,8 +10,8 @@ for i=1:max([trackers(:).end])
     record_t(i).states=[];
     record_t(i).velocity=[];
 end
-for i = 1:size(trackerW)
-    states=trackerW(i).smoothed_states;
+for i = 1:size(trackerW,2)
+    states=trackerW(i).states;
     velocity=states(1:3,2:end)-states(1:3,1:end-1);
     start=trackerW(i).start;
     for j=1:size(states,2)-1

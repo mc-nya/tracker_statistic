@@ -76,6 +76,19 @@ feature_vector= bsxfun(@minus,feature_vector,mean(feature_vector,1));
 feature_vector= feature_vector*tran;
 median_vector=median(feature_vector,1);
 
+figure(4);
+hold on;
+for i=1:size(feature_vector)
+    
+    plot3(feature_vector(i,1),feature_vector(i,2),feature_vector(i,3),'r+');
+end
+xlabel('pv1');
+ylabel('pv2');
+zlabel('pv3');
+plot3(median_vector(1),median_vector(2),median_vector(3),'bh');
+
+
+
 %-----------select cluster-------------
 diff_vec=feature_vector-repmat(median_vector,size(feature_vector,1),1);
 dist_vec=[];
@@ -84,8 +97,8 @@ for i=1:size(diff_vec)
 end
 dist_median=median(dist_vec);
 selected_item=find(dist_vec<dist_median*2);
-selected_item=intersect(selected_item,find(feature_vector(:,1)-feature_vector(:,2)>0));
-selected_item=intersect(selected_item,find(feature_vector(:,2)-feature_vector(:,3)<0));
+%selected_item=intersect(selected_item,find(feature_vector(:,1)-feature_vector(:,2)>0));
+%selected_item=intersect(selected_item,find(feature_vector(:,2)-feature_vector(:,3)<0));
 %selected_item=intersect(selected_item,find(feature_vector(:,3)-feature_vector(:,4)>0));
 %selected_item=intersect(selected_item,find(feature_vector(:,4)-feature_vector(:,5)<0));
  %------------------draw ----------------------
@@ -113,20 +126,20 @@ plot(std(feature_vector)+mean(feature_vector),'r')
 plot(-std(feature_vector)+mean(feature_vector),'r')
 grid on;
 
-% figure(2);
-% 
-% hold on;
-% for i=1:size(feature_vector)
-%     
-%     plot3(feature_vector(i,1),feature_vector(i,2),feature_vector(i,3),'r+');
-% end
-% plot3(median_vector(1),median_vector(2),median_vector(3),'bh');
+figure(2);
+
+hold on;
+for i=1:size(feature_vector)
+    
+    plot3(feature_vector(i,1),feature_vector(i,2),feature_vector(i,3),'r+');
+end
+plot3(median_vector(1),median_vector(2),median_vector(3),'bh');
 
 figure(3);
 feature_vector=feature_v1_norm;
 hold on;
 for i=1:size(feature_vector)
-    plot(feature_vector(i,:),'k');
+    plot(feature_vector(i,:),'b');
 %     for j=1:size(feature_vector,2)
 %         plot(j,feature_vector(i,j),'k');
 %     end

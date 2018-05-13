@@ -2,7 +2,7 @@ save_crash=[];
 count=1;
 for k = 1:size(record_crash,2)
     
-    %show_trace(trackerW,record_crash,k);
+    show_trace(trackerW,record_crash,k);
     t=show_statistic(trackerW,record_crash,k);
     %show_trace_from_zero( trackerW,record_crash, k );
     %show_statistic_from_zero(trackerW,record_crash,k);
