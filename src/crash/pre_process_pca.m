@@ -6,10 +6,10 @@ feature_acc_norm=[];
 feature_acc_on_v_past=[];
 feature_acc_on_v_past_norm=[];
 feature_v_ang=[];
-
+record_crash_washed_double=[];
 for outer_index=1:size(record_crash_washed,2)
     pair=record_crash_washed(1,outer_index);
-    
+    record_crash_washed_double=[record_crash_washed_double pair pair];
     time_crash=floor(pair.time_end);
     index1=pair.id(1);
     index2=pair.id(2);
@@ -73,8 +73,8 @@ median_vector=median(feature_vector,1);
 % recons= bsxfun(@plus,recons,recons_mean);
 % corrcoef(recons,feature_v_norm)
 
-recons_=(ones(1,1))*pinv(pc(:,4));
-%recons_= bsxfun(@plus,recons_,recons_mean);
+% recons_=(ones(1,1))*pinv(pc(:,4));
+% %recons_= bsxfun(@plus,recons_,recons_mean);
 % figure(6);
 % hold on;
 % recons_real=real(recons_);
@@ -98,22 +98,22 @@ feature_vector_imag=imag(feature_vector);
 % selected_item=intersect(selected_item,find(feature_vector_real(:,3)-feature_vector_real(:,4)>0));
 % 
  %selected_item=intersect(selected_item,find(feature_vector_real(:,1)>0));
- selected_item=intersect(selected_item,find(feature_vector_real(:,2)<0));
- selected_item=intersect(selected_item,find(feature_vector_real(:,3)<0));
- selected_item=intersect(selected_item,find(feature_vector_real(:,4)>0));
+ %selected_item=intersect(selected_item,find(feature_vector_real(:,2)<0));
+ selected_item=intersect(selected_item,find(feature_vector_real(:,3)<-1));
+ selected_item=intersect(selected_item,find(feature_vector_real(:,4)>1));
 % selected_item=intersect(selected_item,find(feature_vector_imag(:,1)-feature_vector_imag(:,2)<0));
 % selected_item=intersect(selected_item,find(feature_vector_imag(:,2)-feature_vector_imag(:,3)>0));
 % selected_item=intersect(selected_item,find(feature_vector_imag(:,3)-feature_vector_imag(:,4)<0));
 % 
-% selected_item=intersect(selected_item,find(feature_vector_imag(:,1)<0));
-selected_item=intersect(selected_item,find(feature_vector_imag(:,2)>0));
-% selected_item=intersect(selected_item,find(feature_vector_imag(:,3)<0));
-% selected_item=intersect(selected_item,find(feature_vector_imag(:,4)>0));
+selected_item=intersect(selected_item,find(feature_vector_imag(:,1)<0));
+%selected_item=intersect(selected_item,find(feature_vector_imag(:,2)>1));
+selected_item=intersect(selected_item,find(feature_vector_imag(:,3)>-1));
+selected_item=intersect(selected_item,find(feature_vector_imag(:,4)<1));
 %selected_item=intersect(selected_item,find(feature_vector(:,4)-feature_vector(:,5)<0));
 
 %----------------using pca result, revise detect_set-----------
 reduced_vector=feature_vector(selected_item,:);
-%record_crash_washed=record_crash_washed(:,selected_item);
+record_crash_washed=record_crash_washed_double(:,selected_item);
 feature_v_norm=feature_v_norm(selected_item,:);
 feature_acc_norm=feature_acc_norm(selected_item,:);
 feature_acc_on_v_past=feature_acc_on_v_past(selected_item,:);
