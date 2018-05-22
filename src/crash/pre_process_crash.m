@@ -33,7 +33,10 @@ for time=1:size(record_t,2)
     maxium_detection_distance=100;
     minium_crash_distance=5;
     for i=1:size(id,2)
-        for j=i+1:size(id,2)
+        for j=1:size(id,2)
+            if i==j
+                continue;
+            end
             %filter by maxium detection distance
             if (distance(states(1:3,i),states(1:3,j))<maxium_detection_distance)     
                 delta_p=states(1:3,i)-states(1:3,j);
@@ -57,5 +60,7 @@ for time=1:size(record_t,2)
     end
 end
 
-
-
+clear time record_t;
+clear states velocity start k;
+clear delta_p delta_v delta_t min_dist min_dist_t;
+clear current i id j;
