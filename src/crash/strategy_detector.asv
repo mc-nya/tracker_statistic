@@ -178,6 +178,7 @@ for outer_index=1:size(record_crash_washed,2)
     for i=1:size(angl_v1_v2,2)
         temp(1,timer1(i))=angl_v1_v2(i);
     end
+    size(temp,2)
     feature_angle_distribution=[feature_angle_distribution; temp];
     clear temp;
     plot(timer1(1:size(angl_v1_v2,2)),angl_v1_v2,'k');
@@ -186,9 +187,7 @@ for outer_index=1:size(record_crash_washed,2)
     line([time_crash time_crash],[0 max(max(angl_v1_v2),max(angl_v1_v2))],'color','b');
 end
 figure(2);
-histogram(feature_time_dist(:,1));
-figure(3);
-histogram(feature_time_dist(:,2));
+bar(featr
 
 clear temp_record_crash_washed;
 clear time_detect velocity1 velocity2 start_time1 start_time2 ans acc1 acc2 acc1_d acc2_d;

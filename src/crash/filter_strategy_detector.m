@@ -13,7 +13,7 @@ end
 
 function valid=singel_filter(trackerW, pair ,left_delta_time,right_delta_time)
     time_crash=pair.time_end;
-    %time_detect=pair.time_start;
+    time_detect=pair.time_start;
     
     
     index1=pair.id(1);
@@ -37,6 +37,10 @@ function valid=singel_filter(trackerW, pair ,left_delta_time,right_delta_time)
     
     %------0. minium length to two sides-------
     if timer1(1)>time_crash-left_delta_time || timer1(end)<time_crash+right_delta_time
+        valid=0;
+        return;
+    end
+    if time_crash-time_detect<5
         valid=0;
         return;
     end
