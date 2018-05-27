@@ -1,12 +1,12 @@
-left_delta_time=6;
+left_delta_time=15;
 right_delta_time=4;
 record_crash_washed=filter_strategy_detector(trackerW,record_crash,left_delta_time,right_delta_time);
-threshold_acc=1;
-threshold_acc_d=1;
-threshold_acc_norm=0.5;
-threshold_acc_norm_d=0.5;
-threshold_acc_tan=0.5;
-threshold_acc_tan_d=0.5;
+threshold_acc=1.4;
+threshold_acc_d=1.4;
+threshold_acc_norm=1;
+threshold_acc_norm_d=1;
+threshold_acc_tan=1;
+threshold_acc_tan_d=1;
 
 %==============step 1 根据加速度和加速度梯度对齐==============
 for outer_index=1:size(record_crash_washed,2)
@@ -96,6 +96,7 @@ for outer_index=1:size(record_crash_washed,2)
 end
 
 feature_angle_distribution=[];
+feature_str_crash_distribution=[];
 figure(1);
 hold on;
 feature_time_dist=[];
@@ -104,7 +105,7 @@ for outer_index=1:size(record_crash_washed,2)
     time_crash=floor(pair.time_end);
     time_detect=pair.time_start;
     time_strategy=pair.time_strategy;
-    time_pad=time_strategy-time_left_longest-1;
+    
     feature_time_dist=[feature_time_dist; [time_strategy-time_detect time_crash-time_strategy]];
     
     index1=pair.id(1);
@@ -113,7 +114,9 @@ for outer_index=1:size(record_crash_washed,2)
     states2=trackerW(index2).states(1:3,:);
     timer1=trackerW(index1).start:trackerW(index1).end;   
     timer2=trackerW(index2).start:trackerW(index2).end;   
-     %cut time(time_start---crash---right_delta_time)
+    
+    
+    %----------------cut time(time_start---crash---right_delta_time)------
     if right_delta_time~=0
         start_time1=max(timer1(1),time_detect);
         end_time1=min(timer1(end),time_crash+right_delta_time);
@@ -125,12 +128,50 @@ for outer_index=1:size(record_crash_washed,2)
         states2=states2(1:3,find(timer2==start_time2):find(timer2==end_time2));
         timer2=timer2(find(timer2==start_time2):find(timer2==end_time2));  
     end
+    
+    
+    %----------在A的轨迹上寻找可能碰撞的C---------------
+    outer_index
+    record_crash_washed(outer_index).fly_c=[];
+    for time=timer1(1):timer1(end)
+        ids=record_t(time).id;
+        for i=1:size(ids,2)
+            id3=ids(1,i);
+            if id3==index1 || id3==index2 
+                continue;
+            end
+            states=[record_t(time).states(:,:)];
+            velocitys=[record_t(time).velocity(:,:)];
+            states1_c=states(1:3,find(ids==index1));
+            states3=states(1:3,i);
+            velocity1=velocitys(1:3,find(ids==index1));
+            velocity3=velocitys(1:3,i);
+            if (distance(states1_c,states3)<maxium_detection_distance)
+                delta_p=states1_c-states3;
+                delta_v=velocity1-velocity3;
+                delta_t=delta_p./-delta_v;
+                min_dist=norm(cross(delta_p,delta_v))/norm(delta_v);
+                min_dist_t=sqrt(norm(delta_p)^2-min_dist^2)/norm(delta_v);
+                if min_dist<minium_crash_distance && min(delta_t)>0
+                    temp=[time id3];
+                    feature_str_crash_distribution=[feature_str_crash_distribution time-time_strategy];
+                    record_crash_washed(outer_index).fly_c=[record_crash_washed(outer_index).fly_c; temp];
+                end
+            end
+        end
+        
+    end
+    clear time;
+    
+    %----------------修改并对齐时间：time_left_longest~time_strategy~time_right_longest------------------
+    time_pad=time_strategy-time_left_longest-1;
     timer1=timer1-time_pad;
     timer2=timer2-time_pad;
     time_crash=time_crash-time_pad;
     time_detect=time_detect-time_pad;
     time_strategy=time_strategy-time_pad;
    
+    %---------------计算轨迹属性---------------------
     [ v1_norm,acc1_norm, acc1_on_v1_past, acc1_on_v1_past_norm, r1, v1_ang, acc1_ang] = calc_trace_attribute( states1 );
     
     [ v2_norm,acc2_norm, acc2_on_v2_past, acc2_on_v2_past_norm, r2, v2_ang, acc2_ang] = calc_trace_attribute( states2 );
@@ -175,8 +216,10 @@ for outer_index=1:size(record_crash_washed,2)
         end
     end
     temp=zeros(1,time_left_longest+1+time_right_longest+1);
+    
     for i=1:size(angl_v1_v2,2)
         temp(1,timer1(i))=angl_v1_v2(i);
+        
     end
     feature_angle_distribution=[feature_angle_distribution; temp];
     clear temp;
@@ -187,8 +230,20 @@ for outer_index=1:size(record_crash_washed,2)
 end
 figure(2);
 histogram(feature_time_dist(:,1));
+title('t到策略时间分布');
+saveas(gca,['../../statistic/t_strategy.png']);
+saveas(gca,['../../statistic/t_strategy.fig']);
 figure(3);
 histogram(feature_time_dist(:,2));
+title('策略到t+n时间分布');
+saveas(gca,['../../statistic/strategy_t+n.png']);
+saveas(gca,['../../statistic/strategy_t+n.fig']);
+
+figure(4);
+histogram(feature_str_crash_distribution);
+title('第三只碰撞时间分布');
+%saveas(gca,['../../statistic/strategy_t+n.png']);
+%saveas(gca,['../../statistic/strategy_t+n.fig']);
 
 clear temp_record_crash_washed;
 clear time_detect velocity1 velocity2 start_time1 start_time2 ans acc1 acc2 acc1_d acc2_d;

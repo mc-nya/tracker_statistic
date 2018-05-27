@@ -44,6 +44,7 @@ for time=1:size(record_t,2)
                 delta_t=delta_p./-delta_v;
                 min_dist=norm(cross(delta_p,delta_v))/norm(delta_v);
                 min_dist_t=sqrt(norm(delta_p)^2-min_dist^2)/norm(delta_v);
+                
                 %filter by minium distance
                 if min_dist<minium_crash_distance && min(delta_t)>0
                     result_num=result_num+1;
@@ -55,12 +56,13 @@ for time=1:size(record_t,2)
                     record_crash(result_num).delta_time=min_dist_t;
                     record_crash(result_num).min_dist=min_dist;
                 end
+                
             end
         end
     end
 end
 
-clear time record_t;
+clear time;
 clear states velocity start k;
 clear delta_p delta_v delta_t min_dist min_dist_t;
 clear current i id j;
