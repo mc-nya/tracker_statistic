@@ -5,8 +5,8 @@ threshold_acc=1000;
 threshold_acc_d=1000;
 threshold_acc_norm=1;
 threshold_acc_norm_d=1;
-threshold_acc_tan=1000;
-threshold_acc_tan_d=1000;
+threshold_acc_tan=1;
+threshold_acc_tan_d=1;
 
 %==============step 1 根据加速度和加速度梯度对齐==============
 for outer_index=1:size(record_crash_washed,2)
@@ -106,7 +106,6 @@ feature_acc2_norm=[];
 feature_acc2_tan=[];
 feature_angle_distribution=[];
 feature_dist_s1_crash_point=[];
-feature_dist_s2_crash_point=[];
 feature_str_crash_distribution=[];
 feature_dist_s1_s2=[];
 
@@ -200,22 +199,13 @@ for outer_index=1:size(record_crash_washed,2)
     
     dur_time=pair.delta_time;
     v1=pair.velocity(1:3,1);
-    v2=pair.velocity(1:3,2);
     p1_crash=states1(1:3,find(timer1==time_detect))+v1*dur_time;
-    p2_crash=states2(1:3,find(timer2==time_detect))+v2*dur_time;
     dist_s1_crash_point=[];
-    dist_s2_crash_point=[];
     for i=1:size(timer1,2);
         %==========简记变量初始化=========
         s1=states1(1:3,i);  
         %======计算和虚拟碰撞点的距离===========
-        dist_s1_crash_point=[dist_s1_crash_point norm(s1-p1_crash)];     
-    end
-    for i=1:size(timer2,2);
-        %==========简记变量初始化=========
-        s2=states2(1:3,i);  
-        %======计算和虚拟碰撞点的距离===========
-        dist_s2_crash_point=[dist_s2_crash_point norm(s2-p2_crash)];     
+        dist_s1_crash_point=[dist_s1_crash_point; norm(s1-p1_crash)];     
     end
    
     timer_both=max(timer1(1),timer2(1)):min(timer1(end)-2,timer2(end)-2);
@@ -226,7 +216,7 @@ for outer_index=1:size(record_crash_washed,2)
     for i=1:size(timer_both,2)
         s1=states1(1:3,find(timer1==timer_both(i)));
         s2=states2(1:3,find(timer2==timer_both(i)));
-        dist_s1_s2=[dist_s1_s2 norm(s1-s2)];
+        dist_s1_s2=[dist_s1_s2; norm(s1-s2)];
         
         if i~=size(timer_both,2)
             v1=velocity1(1:3,find(timer1==timer_both(i)));
@@ -284,21 +274,15 @@ for outer_index=1:size(record_crash_washed,2)
     end
     feature_dist_s1_s2=[feature_dist_s1_s2; temp];
         
-    %------记录AB分别和碰撞点距离-----
+    %------记录A和碰撞点距离-----
     temp=zeros(1,time_left_longest+1+time_right_longest); 
     for i=1:size(dist_s1_crash_point,2)
         temp(1,timer1(i))=dist_s1_crash_point(i);
     end
     feature_dist_s1_crash_point=[feature_dist_s1_crash_point; temp];
     
-    temp=zeros(1,time_left_longest+1+time_right_longest); 
-    for i=1:size(dist_s2_crash_point,2)
-        temp(1,timer2(i))=dist_s2_crash_point(i);
-    end
-    feature_dist_s2_crash_point=[feature_dist_s2_crash_point; temp];
-    
     %-----记录互相角度变化-----
-    temp=zeros(1,time_left_longest+1+time_right_longest); 
+    temp=zeros(1,time_left_longest+1+time_right_longest+1); 
     for i=1:size(angl_v1_v2,2)
         temp(1,timer_both(i))=angl_v1_v2(i);
         
@@ -312,16 +296,16 @@ for i=1:size(feature_v1_norm,2)
     hold off;
     draw1=feature_v1_norm(:,i);
     draw2=feature_v2_norm(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');    
-    h1.BinWidth=0.2;
-    h2.BinWidth=0.2;
-    title(['速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('velocity(mm/f)');
-    ylabel('probability');
-    legend('A','B');
+    if isempty(draw1)==1 || isempty(draw2)==1 
+        continue;
+    end;
     
+    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','r');
+    hold on;
+    h2=histogram(draw2(draw2>0),nbins,'Normalization','probability','edgecolor','b');
+    h1.BinWidth=0.25;
+    h2.BinWidth=0.25;
+    title(['速度分布图:' num2str(i) ' 策略点:' num2str(time_left_longest)]);
     saveas(gca,['../../statistic/velocity_distribution_' num2str(i) '.png']);
     saveas(gca,['../../statistic/velocity_distribution_' num2str(i) '.fig']);
     clear draw1 draw2 nbins;
@@ -333,92 +317,21 @@ for i=1:size(feature_acc1_norm,2)
     hold off;
     draw1=feature_acc1_norm(:,i);
     draw2=feature_acc2_norm(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     if isempty(draw1)==1 || isempty(draw2)==1 
+%         continue;
+%     end;
+    
+    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','r');
     hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
-    h1.BinWidth=0.2;
-    h2.BinWidth=0.2;
-    title(['法向加速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('centripetal acceleration(mm/f^2)');
-    ylabel('probability');
-    legend('A','B');
+    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','b');
+    h1.BinWidth=0.15;
+    h2.BinWidth=0.15;
+    title(['法向加速度分布图:' num2str(i) ' 策略点:' num2str(time_left_longest) ' A ]);
     saveas(gca,['../../statistic/acc_norm_distribution_' num2str(i) '.png']);
     saveas(gca,['../../statistic/acc_norm_distribution_' num2str(i) '.fig']);
     clear draw1 draw2 nbins;
 end
-
-%==========画图::叠加画切向加速度分布==========
-figure;
-for i=1:size(feature_acc1_tan,2)
-    hold off;
-    draw1=feature_acc1_tan(:,i);
-    draw2=feature_acc2_tan(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
-    h1.BinWidth=0.2;
-    h2.BinWidth=0.2;
-    title(['切向加速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('tangential acceleration(mm/f^2)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/acc_tan_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/acc_tan_distribution_' num2str(i) '.fig']);
-    clear draw1 draw2;
-end
-
-%==========画图::叠加画和碰撞点距离分布==========
-figure;
-for i=1:size(feature_dist_s1_crash_point,2)
-    hold off;
-    draw1=feature_dist_s1_crash_point(:,i);
-    draw2=feature_dist_s2_crash_point(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
-    h1.BinWidth=5;
-    h2.BinWidth=5;
-    title(['和碰撞点距离分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('distance(mm)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/dist_crash_point_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/dist_crash_point_distribution_' num2str(i) '.fig']);
-    clear draw1 draw2;
-end
-
-%==========画图::画两者间距离分布==========
-figure;
-for i=1:size(feature_dist_s1_s2,2)
-    hold off;
-    draw1=feature_dist_s1_s2(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    h1.BinWidth=5;
-    xlabel('distance(mm)');
-    ylabel('probability');
-    legend('A','B');
-    title(['果蝇间距离分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' 总数:' num2str(size(draw1(draw1>0),1))]);
-    saveas(gca,['../../statistic/dist_AB_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/dist_AB_distribution_' num2str(i) '.fig']);
-    clear draw1;
-end
     
-
-%==========画图::画两者间角度分布==========
-figure;
-for i=1:size(feature_angle_distribution,2)
-    hold off;
-    draw1=feature_angle_distribution(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    h1.BinWidth=5;
-    title(['果蝇间速度夹角分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' 总数:' num2str(size(draw1(draw1>0),1))]);
-    xlabel('angle(degree)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/angle_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/angle_distribution_' num2str(i) '.fig']);
-    clear draw1;
-end
 
 %==========画图::决策点到t+n时间分布-正则化=============
 figure(2);
@@ -433,8 +346,7 @@ end
 bar(temp_time_dist(1:end-1));
 clear temp_time_dist regularize_divider;
 title('决策点到t+n时间分布-正则化');
-xlabel('time(frame)');
-ylabel('normalized count');
+
 
 % figure(3);
 % histogram(feature_time_dist(:,2));
@@ -457,8 +369,6 @@ for i=1:size(temp_time_dist,2)-3
 end
 bar(temp_time_dist(1:end-1));
 title('t到决策点时间分布-正则化 ');
-xlabel('time(frame)');
-ylabel('normalized count');
 clear temp_time_dist regularize_divider;
 
 
@@ -485,8 +395,6 @@ end
 bar(bin_str_crash_distribution);
 %histogram(feature_str_crash_distribution);
 title(['第三只碰撞时间分布 决策点' num2str(time_left_longest+1)]);
-xlabel('time(frame)');
-ylabel('normalized count');
 
 saveas(gca,['../../statistic/third.png']);
 saveas(gca,['../../statistic/third.fig']);
