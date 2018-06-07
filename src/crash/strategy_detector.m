@@ -1,12 +1,26 @@
-left_delta_time=15;
+left_delta_time=7;
 right_delta_time=4;
+
+threshold_acc_min=1000;
+threshold_acc_d_min=1000;
+threshold_acc_norm_min=0.77;
+threshold_acc_norm_d_min=0.77;
+threshold_acc_tan_min=1000;
+threshold_acc_tan_d_min=1000;
+
+threshold_acc_max=1000;
+threshold_acc_d_max=1000;
+threshold_acc_norm_max=2.5;
+threshold_acc_norm_d_max=2.5;
+threshold_acc_tan_max=1000;
+threshold_acc_tan_d_max=1000;
+
+threshold_avg_acc=inf;
+threshold_avg_acc_norm=-inf;
+threshold_avg_acc_tan=-inf;
+minium_crash_distance=7;
+
 record_crash_washed=filter_strategy_detector(trackerW,record_crash,left_delta_time,right_delta_time);
-threshold_acc=1000;
-threshold_acc_d=1000;
-threshold_acc_norm=1;
-threshold_acc_norm_d=1;
-threshold_acc_tan=1000;
-threshold_acc_tan_d=1000;
 
 %==============step 1 根据加速度和加速度梯度对齐==============
 for outer_index=1:size(record_crash_washed,2)
@@ -40,34 +54,62 @@ for outer_index=1:size(record_crash_washed,2)
     acc2=velocity2(1:3,2:end)-velocity2(1:3,1:end-1);
     acc2_d=acc2(1:3,2:end)-acc2(1:3,1:end-1);
     
-%     for i=1:size(acc1_d,2)
-%         if(norm(acc1(:,i))>threshold_acc) || (norm(acc1_d(:,i))>threshold_acc_d)
-%             record_crash_washed(1,outer_index).time_strategy=timer1(i);
-%             break;
-%         end
-%     end 
     [ v1_norm,acc1_norm, acc1_on_v1_past, acc1_on_v1_past_norm, r1, v1_ang, acc1_ang] = calc_trace_attribute( states1 );
+    
     acc1_tan_d=acc1_on_v1_past(2:end)-acc1_on_v1_past(1:end-1);
     acc1_norm_d=acc1_on_v1_past_norm(2:end)-acc1_on_v1_past_norm(1:end-1);
     acc1_tan=acc1_on_v1_past;
     acc1_norm=acc1_on_v1_past_norm;
+    
+
+    
+    
+    
+    index_post_strategy=-1;
     for i=1:size(acc1_tan_d,2)
-        if(norm(acc1_tan(:,i))>threshold_acc_tan) || (norm(acc1_tan_d(:,i))>threshold_acc_tan_d)
-            record_crash_washed(1,outer_index).time_strategy=timer1(i);
+        if(norm(acc1_tan(:,i))>threshold_acc_tan_min && norm(acc1_tan(:,i))<threshold_acc_tan_max) ...,
+                || (norm(acc1_tan_d(:,i))>threshold_acc_tan_d_min && norm(acc1_tan_d(:,i))<threshold_acc_tan_d_max)
+            index_post_strategy=i;
             break;
         end
-        if(norm(acc1(:,i))>threshold_acc) || (norm(acc1_d(:,i))>threshold_acc_d)
-            record_crash_washed(1,outer_index).time_strategy=timer1(i);
+        if(norm(acc1(:,i))>threshold_acc_min && norm(acc1(:,i))<threshold_acc_max)  ...,
+                || (norm(acc1_d(:,i))>threshold_acc_d_min && norm(acc1_d(:,i))<threshold_acc_d_max)
+            index_post_strategy=i;
             break;
         end
-        if(norm(acc1_norm(:,i))>threshold_acc_norm) || (norm(acc1_norm_d(:,i))>threshold_acc_norm_d)
-            record_crash_washed(1,outer_index).time_strategy=timer1(i);
+        if(norm(acc1_norm(:,i))>threshold_acc_norm_min && norm(acc1_norm(:,i))<threshold_acc_norm_max) ...,
+                || (norm(acc1_norm_d(:,i))>threshold_acc_norm_d_min && norm(acc1_norm_d(:,i))<threshold_acc_norm_d_max)
+            index_post_strategy=i;
             break;
         end
     end 
+    
+    index_strategy=-1;
+    for i=index_post_strategy:-1:1
+        if norm(acc1_tan(:,i))<threshold_avg_acc_tan
+            index_strategy=i;
+            break;
+        end
+        if norm(acc1(:,i))<threshold_avg_acc
+            index_strategy=i;
+            break;
+        end
+        if norm(acc1_norm(:,i))<threshold_avg_acc_norm
+            index_strategy=i;
+            break;
+        end
+    end
+    clear index_post_strategy;
+    
+    if index_strategy~=-1
+        record_crash_washed(1,outer_index).time_strategy=timer1(index_strategy);
+    end
+    clear index_strategy;
     %[ v2_norm,acc2_norm, acc2_on_v2_past, acc2_on_v2_past_norm, r2, v2_ang, acc2_ang] = calc_trace_attribute( states2 );
     
 end
+
+
 
 % ====================step2  筛选出找到策略的项，并保证与起始点不重合==============
 temp_record_crash_washed=[];
@@ -306,119 +348,117 @@ for outer_index=1:size(record_crash_washed,2)
     feature_angle_distribution=[feature_angle_distribution; temp];
     clear temp;
 end
-%==========画图::叠加画速度分布==========
-figure;
-for i=1:size(feature_v1_norm,2)
-    hold off;
-    draw1=feature_v1_norm(:,i);
-    draw2=feature_v2_norm(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');    
-    h1.BinWidth=0.2;
-    h2.BinWidth=0.2;
-    title(['速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('velocity(mm/f)');
-    ylabel('probability');
-    legend('A','B');
-    
-    saveas(gca,['../../statistic/velocity_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/velocity_distribution_' num2str(i) '.fig']);
-    clear draw1 draw2 nbins;
-end
-
-%==========画图::叠加画法向加速度分布==========
-figure;
-for i=1:size(feature_acc1_norm,2)
-    hold off;
-    draw1=feature_acc1_norm(:,i);
-    draw2=feature_acc2_norm(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
-    h1.BinWidth=0.2;
-    h2.BinWidth=0.2;
-    title(['法向加速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('centripetal acceleration(mm/f^2)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/acc_norm_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/acc_norm_distribution_' num2str(i) '.fig']);
-    clear draw1 draw2 nbins;
-end
-
-%==========画图::叠加画切向加速度分布==========
-figure;
-for i=1:size(feature_acc1_tan,2)
-    hold off;
-    draw1=feature_acc1_tan(:,i);
-    draw2=feature_acc2_tan(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
-    h1.BinWidth=0.2;
-    h2.BinWidth=0.2;
-    title(['切向加速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('tangential acceleration(mm/f^2)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/acc_tan_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/acc_tan_distribution_' num2str(i) '.fig']);
-    clear draw1 draw2;
-end
-
-%==========画图::叠加画和碰撞点距离分布==========
-figure;
-for i=1:size(feature_dist_s1_crash_point,2)
-    hold off;
-    draw1=feature_dist_s1_crash_point(:,i);
-    draw2=feature_dist_s2_crash_point(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    hold on;
-    h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
-    h1.BinWidth=5;
-    h2.BinWidth=5;
-    title(['和碰撞点距离分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
-    xlabel('distance(mm)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/dist_crash_point_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/dist_crash_point_distribution_' num2str(i) '.fig']);
-    clear draw1 draw2;
-end
-
-%==========画图::画两者间距离分布==========
-figure;
-for i=1:size(feature_dist_s1_s2,2)
-    hold off;
-    draw1=feature_dist_s1_s2(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    h1.BinWidth=5;
-    xlabel('distance(mm)');
-    ylabel('probability');
-    legend('A','B');
-    title(['果蝇间距离分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' 总数:' num2str(size(draw1(draw1>0),1))]);
-    saveas(gca,['../../statistic/dist_AB_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/dist_AB_distribution_' num2str(i) '.fig']);
-    clear draw1;
-end
-    
-
-%==========画图::画两者间角度分布==========
-figure;
-for i=1:size(feature_angle_distribution,2)
-    hold off;
-    draw1=feature_angle_distribution(:,i);
-    h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
-    h1.BinWidth=5;
-    title(['果蝇间速度夹角分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' 总数:' num2str(size(draw1(draw1>0),1))]);
-    xlabel('angle(degree)');
-    ylabel('probability');
-    legend('A','B');
-    saveas(gca,['../../statistic/angle_distribution_' num2str(i) '.png']);
-    saveas(gca,['../../statistic/angle_distribution_' num2str(i) '.fig']);
-    clear draw1;
-end
+% %==========画图::叠加画速度分布==========
+% figure;
+% for i=1:size(feature_v1_norm,2)
+%     hold off;
+%     draw1=feature_v1_norm(:,i);
+%     draw2=feature_v2_norm(:,i);
+%     h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     hold on;
+%     h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');    
+%     h1.BinWidth=0.2;
+%     h2.BinWidth=0.2;
+%     title(['速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
+%     xlabel('velocity(mm/f)');
+%     ylabel('probability');
+%     legend('A','B');
+%     
+%     saveas(gca,['../../statistic/velocity_distribution_' num2str(i) '.png']);
+%     saveas(gca,['../../statistic/velocity_distribution_' num2str(i) '.fig']);
+%     clear draw1 draw2 nbins;
+% end
+% 
+% %==========画图::叠加画法向加速度分布==========
+% figure;
+% for i=1:size(feature_acc1_norm,2)
+%     hold off;
+%     draw1=feature_acc1_norm(:,i);
+%     draw2=feature_acc2_norm(:,i);
+%     h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     hold on;
+%     h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
+%     h1.BinWidth=0.2;
+%     h2.BinWidth=0.2;
+%     title(['法向加速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
+%     xlabel('centripetal acceleration(mm/f^2)');
+%     ylabel('probability');
+%     legend('A','B');
+%     saveas(gca,['../../statistic/acc_norm_distribution_' num2str(i) '.png']);
+%     saveas(gca,['../../statistic/acc_norm_distribution_' num2str(i) '.fig']);
+%     clear draw1 draw2 nbins;
+% end
+% 
+% %==========画图::叠加画切向加速度分布==========
+% figure;
+% for i=1:size(feature_acc1_tan,2)
+%     hold off;
+%     draw1=feature_acc1_tan(:,i);
+%     draw2=feature_acc2_tan(:,i);
+%     h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     hold on;
+%     h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
+%     h1.BinWidth=0.2;
+%     h2.BinWidth=0.2;
+%     title(['切向加速度分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
+%     xlabel('tangential acceleration(mm/f^2)');
+%     ylabel('probability');
+%     legend('A','B');
+%     saveas(gca,['../../statistic/acc_tan_distribution_' num2str(i) '.png']);
+%     saveas(gca,['../../statistic/acc_tan_distribution_' num2str(i) '.fig']);
+%     clear draw1 draw2;
+% end
+% 
+% %==========画图::叠加画和碰撞点距离分布==========
+% figure;
+% for i=1:size(feature_dist_s1_crash_point,2)
+%     hold off;
+%     draw1=feature_dist_s1_crash_point(:,i);
+%     draw2=feature_dist_s2_crash_point(:,i);
+%     h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     hold on;
+%     h2=histogram(draw2(draw2>0),'Normalization','probability','edgecolor','r');
+%     h1.BinWidth=5;
+%     h2.BinWidth=5;
+%     title(['和碰撞点距离分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' A总数:' num2str(size(draw1(draw1>0),1)) ' B总数' num2str(size(draw2(draw2>0),1))]);
+%     xlabel('distance(mm)');
+%     ylabel('probability');
+%     legend('A','B');
+%     saveas(gca,['../../statistic/dist_crash_point_distribution_' num2str(i) '.png']);
+%     saveas(gca,['../../statistic/dist_crash_point_distribution_' num2str(i) '.fig']);
+%     clear draw1 draw2;
+% end
+% 
+% %==========画图::画两者间距离分布==========
+% figure;
+% for i=1:size(feature_dist_s1_s2,2)
+%     hold off;
+%     draw1=feature_dist_s1_s2(:,i);
+%     h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     h1.BinWidth=5;
+%     xlabel('distance(mm)');
+%     ylabel('probability');
+%     title(['果蝇间距离分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' 总数:' num2str(size(draw1(draw1>0),1))]);
+%     saveas(gca,['../../statistic/dist_AB_distribution_' num2str(i) '.png']);
+%     saveas(gca,['../../statistic/dist_AB_distribution_' num2str(i) '.fig']);
+%     clear draw1;
+% end
+%     
+% 
+% %==========画图::画两者间角度分布==========
+% figure;
+% for i=1:size(feature_angle_distribution,2)
+%     hold off;
+%     draw1=feature_angle_distribution(:,i);
+%     h1=histogram(draw1(draw1>0),'Normalization','probability','edgecolor','b');
+%     h1.BinWidth=5;
+%     title(['果蝇间速度夹角分布图:' num2str(i) ' A决策点:' num2str(time_left_longest) ' 总数:' num2str(size(draw1(draw1>0),1))]);
+%     xlabel('angle(degree)');
+%     ylabel('probability');
+%     saveas(gca,['../../statistic/angle_distribution_' num2str(i) '.png']);
+%     saveas(gca,['../../statistic/angle_distribution_' num2str(i) '.fig']);
+%     clear draw1;
+% end
 
 %==========画图::决策点到t+n时间分布-正则化=============
 figure(2);
@@ -430,7 +470,9 @@ end
 for i=1:size(temp_time_dist,2)-3
     temp_time_dist(i)=temp_time_dist(i)/regularize_divider(i+time_strategy+1);
 end
+hold off;
 bar(temp_time_dist(1:end-1));
+hold on;
 clear temp_time_dist regularize_divider;
 title('决策点到t+n时间分布-正则化');
 xlabel('time(frame)');
@@ -455,7 +497,9 @@ end
 for i=1:size(temp_time_dist,2)-3
     temp_time_dist(i)=temp_time_dist(i)/regularize_divider(time_strategy-i);
 end
+hold off;
 bar(temp_time_dist(1:end-1));
+hold on;
 title('t到决策点时间分布-正则化 ');
 xlabel('time(frame)');
 ylabel('normalized count');
@@ -480,9 +524,15 @@ for i=1:size(feature_str_crash_distribution,2)
     bin_str_crash_distribution(feature_str_crash_distribution(1,i))=bin_str_crash_distribution(feature_str_crash_distribution(1,i))+1;
 end
 for i=1:size(bin_str_crash_distribution,2)-1
-    bin_str_crash_distribution(i)=bin_str_crash_distribution(i)/regularize_divider(i);
+    if regularize_divider(i)<15
+        bin_str_crash_distribution(i)=0;
+    else
+        bin_str_crash_distribution(i)=bin_str_crash_distribution(i)/regularize_divider(i);
+    end
 end
+hold off;
 bar(bin_str_crash_distribution);
+hold on;
 %histogram(feature_str_crash_distribution);
 title(['第三只碰撞时间分布 决策点' num2str(time_left_longest+1)]);
 xlabel('time(frame)');
@@ -500,4 +550,5 @@ clear v2_norm acc2_norm  acc2_on_v2_past  acc2_on_v2_past_norm  r2  v2_ang  acc2
 clear time_pad acc1_norm_d acc1_norm acc1_tan acc1_tan_d;
 clear v1 v2 s1 s2 timer_both dur_time p1_crash dist_s1_s2 angl_v1_v2 norm_v1_on_v2 norm_v2_on_v1 dist_s1_crash_point;
 
-
+clear t delta_p delta_t delta_v dist_s2_crash_point feature frame h1 h2 id3 ids min_dist min_dist_t p2_crash;
+clear states states1_c states3 velocity3 velocitys bin_str_crash_distribution;

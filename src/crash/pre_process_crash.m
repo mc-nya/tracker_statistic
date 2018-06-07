@@ -14,6 +14,7 @@ for i = 1:size(trackerW,2)
     states=trackerW(i).states;
     velocity=states(1:3,2:end)-states(1:3,1:end-1);
     start=trackerW(i).start;
+    trackerW(i).Bs=[];
     for j=1:size(states,2)-1
         current=j+start-1;
         record_t(current).id=[record_t(current).id i];
@@ -47,6 +48,7 @@ for time=1:size(record_t,2)
                 
                 %filter by minium distance
                 if min_dist<minium_crash_distance && min(delta_t)>0
+                    trackerW(id(i)).Bs=[trackerW(id(i)).Bs; [id(i) id(j) time min_dist]];
                     result_num=result_num+1;
                     record_crash(result_num).time_start=time;
                     record_crash(result_num).time_end=time+min_dist_t;
