@@ -1,22 +1,22 @@
 for record_index=1:size(record_crash_washed,2)
+    %   initialize specific collision pair 
     pair=record_crash_washed(1,record_index);
-    time_crash=floor(pair.time_end);
+    time_collision=floor(pair.time_end);
     time_detect=pair.time_start;
     time_strategy=pair.time_strategy;
     index1=pair.id(1);
     index2=pair.id(2);
     states1=trackerW(index1).states(1:3,:);
     states2=trackerW(index2).states(1:3,:);
+    %   each element in timer correspond to element in states, record the state's time 
     timer1=trackerW(index1).start:trackerW(index1).end;   
     timer2=trackerW(index2).start:trackerW(index2).end;
+    %   time_min,max record A and B's time in both
     time_min=min(timer1(1),timer2(1));
     time_max=max(timer1(end),timer2(end));
+    %   third: record fly C in the trace of A (at time t~t+n)
     third=record_crash_washed(1,record_index).fly_c;
-    if isempty(third)==1
-        continue;
-    end
-           
-
+    
     
     for i=1:size(third,1)
         index3=third(i,2);
@@ -25,7 +25,7 @@ for record_index=1:size(record_crash_washed,2)
         time_max=max(time_max,timer3(end));
     end
     
-
+    
     timer_color=time_min:time_max;
     color=linspace(0,1,time_max-time_min+1);
     figure;
