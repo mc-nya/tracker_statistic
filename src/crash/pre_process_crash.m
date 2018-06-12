@@ -45,10 +45,20 @@ for time=1:size(record_t,2)
                 delta_t=delta_p./-delta_v;
                 min_dist=norm(cross(delta_p,delta_v))/norm(delta_v);
                 min_dist_t=sqrt(norm(delta_p)^2-min_dist^2)/norm(delta_v);
-                
+                pos_crash_A=states(1:3,i)+min_dist_t*velocity(1:3,i);
+                pos_crash_B=states(1:3,j)+min_dist_t*velocity(1:3,j);
                 %filter by minium distance
                 if min_dist<minium_crash_distance && min(delta_t)>0
-                    trackerW(id(i)).Bs=[trackerW(id(i)).Bs; [id(i) id(j) time min_dist]];
+                    B_record=[];
+                    B_record.index_a=id(i);
+                    B_record.index_b=id(j);
+                    B_record.time_detect=time;
+                    B_record.time_end=time+min_dist_t;
+                    B_record.min_dist=min_dist;
+                    B_record.pos_a=pos_crash_A;
+                    B_record.pos_b=pos_crash_B;
+                    %trackerW(id(i)).Bs=[trackerW(id(i)).Bs; [id(i) id(j) time min_dist]];
+                    trackerW(id(i)).Bs=[trackerW(id(i)).Bs; B_record];
                     result_num=result_num+1;
                     record_crash(result_num).time_start=time;
                     record_crash(result_num).time_end=time+min_dist_t;

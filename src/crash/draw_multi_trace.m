@@ -36,8 +36,7 @@ for record_index=1:size(record_crash_washed,2)
     plot3(states1(1,1),states1(2,1),states1(3,1),'hr');
     
     patch('XData',[states2(1,:) NaN],'YData',[states2(2,:) NaN], 'ZData',[states2(3,:) NaN], ...,
-        'CData',[color(find(timer_color==timer2(1)):find(timer_color==timer2(end))) NaN], ...,
-               'facecolor','none','edgecolor','interp'); 
+               'facecolor','none','edgecolor','b'); 
            
     plot3(states2(1,1),states2(2,1),states2(3,1),'hb');
    

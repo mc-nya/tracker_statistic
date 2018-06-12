@@ -10,7 +10,7 @@ for tracker_index=1:size(trackerW,2)
     v_a_dot=sum(velocity(:,1:end-1).*acc,1);
     a_tan=v_a_dot./velocity_norm(1:end-1);
     a_norm=(abs(acc_norm).^2.-abs(a_tan).^2).^(1/2);
-    temp=[temp (a_norm(velocity_norm(1:end-1)>1.5))];
+    temp=[temp (a_tan(velocity_norm(1:end-1)>1.5))];
  
 end
 figure;
@@ -24,5 +24,7 @@ h1=histogram(temp);
 title('全体切向加速度分布');
 xlabel('mm/f^2');
 ylabel('count');
-saveas(gca,'../../statistic/acc_tan.png');
-saveas(gca,'../../statistic/acc_tan.fig');
+%saveas(gca,'../../statistic/acc_tan.png');
+%saveas(gca,'../../statistic/acc_tan.fig');
+
+clear states velocity acc acc_norm velocity_norm v_a_dot a_tan a_norm;
