@@ -25,17 +25,12 @@ for record_index=1:size(record_crash_washed,2)
         time_max=max(time_max,timer3(end));
     end
     
-    
-    timer_color=time_min:time_max;
-    color=linspace(0,1,time_max-time_min+1);
     figure;
     
 
     hold off;
-    colormap hsv;
     patch('XData',[states1(1,:) NaN],'YData',[states1(2,:) NaN],'ZData',[states1(3,:) NaN], ...,
-               'CData',[color(find(timer_color==timer1(1)):find(timer_color==timer1(end))) NaN ], ...,
-               'facecolor','none','edgecolor','interp'); 
+               'facecolor','none','edgecolor','r'); 
     hold on;
     
     plot3(states1(1,1),states1(2,1),states1(3,1),'hr');
