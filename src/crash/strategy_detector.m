@@ -3,25 +3,26 @@ right_delta_time=4;
 
 threshold_acc_min=1000;
 threshold_acc_d_min=1000;
-threshold_acc_norm_min=0.77;
-threshold_acc_norm_d_min=0.77;
+threshold_acc_norm_min=1.51;
+threshold_acc_norm_d_min=0.47;
 threshold_acc_tan_min=1000;
 threshold_acc_tan_d_min=1000;
 
 threshold_acc_max=1000;
 threshold_acc_d_max=1000;
-threshold_acc_norm_max=2.5;
-threshold_acc_norm_d_max=2.5;
+threshold_acc_norm_max=3.0;
+threshold_acc_norm_d_max=1.75;
 threshold_acc_tan_max=1000;
 threshold_acc_tan_d_max=1000;
 
-threshold_avg_acc=inf;
-threshold_avg_acc_norm=-inf;
+threshold_avg_acc=-inf;
+threshold_avg_acc_norm=0.22;
 threshold_avg_acc_tan=-inf;
 minium_crash_distance=7;
 
 record_crash_washed=filter_strategy_detector(trackerW,record_crash,left_delta_time,right_delta_time);
 
+feature_dt_detect=[];
 %==============step 1 根据加速度和加速度梯度对齐==============
 for outer_index=1:size(record_crash_washed,2)
     pair=record_crash_washed(1,outer_index);
@@ -86,6 +87,10 @@ for outer_index=1:size(record_crash_washed,2)
     
     index_strategy=-1;
     for i=index_post_strategy:-1:1
+        if i<index_post_strategy && norm(acc1_norm(:,i))>norm(acc1_norm(:,i))
+            index_strategy=i;
+            break;
+        end;
         if norm(acc1_tan(:,i))<threshold_avg_acc_tan
             index_strategy=i;
             break;
@@ -99,18 +104,23 @@ for outer_index=1:size(record_crash_washed,2)
             break;
         end
     end
-    clear index_post_strategy;
+    
+    
+    
     
     if index_strategy~=-1
         record_crash_washed(1,outer_index).time_strategy=timer1(index_strategy);
+        feature_dt_detect=[feature_dt_detect index_post_strategy-index_strategy];
     end
+    clear index_post_strategy;
     clear index_strategy;
     %[ v2_norm,acc2_norm, acc2_on_v2_past, acc2_on_v2_past_norm, r2, v2_ang, acc2_ang] = calc_trace_attribute( states2 );
     
 end
+feature_dt_detect=feature_dt_detect(feature_dt_detect~=0);
+histogram(feature_dt_detect);
 
-
-
+median(feature_dt_detect)
 % ====================step2  筛选出找到策略的项，并保证与起始点不重合==============
 temp_record_crash_washed=[];
 for outer_index=1:size(record_crash_washed,2)
@@ -482,8 +492,8 @@ ylabel('normalized count');
 % histogram(feature_time_dist(:,2));
 
 
-saveas(gca,['../../statistic/strategy_t+n.png']);
-saveas(gca,['../../statistic/strategy_t+n.fig']);
+%saveas(gca,['../../statistic/strategy_t+n.png']);
+%saveas(gca,['../../statistic/strategy_t+n.fig']);
 
 
 %==========画图::t到决策点时间分布-正则化=============
@@ -509,8 +519,8 @@ clear temp_time_dist regularize_divider;
 %histogram(feature_time_dist(:,1));
 
 
-saveas(gca,['../../statistic/t_strategy.png']);
-saveas(gca,['../../statistic/t_strategy.fig']);
+%saveas(gca,['../../statistic/t_strategy.png']);
+%saveas(gca,['../../statistic/t_strategy.fig']);
 
 
 
@@ -538,8 +548,8 @@ title(['第三只碰撞时间分布 决策点' num2str(time_left_longest+1)]);
 xlabel('time(frame)');
 ylabel('normalized count');
 
-saveas(gca,['../../statistic/third.png']);
-saveas(gca,['../../statistic/third.fig']);
+%saveas(gca,['../../statistic/third.png']);
+%saveas(gca,['../../statistic/third.fig']);
 
 clear temp_record_crash_washed;
 clear time_detect velocity1 velocity2 start_time1 start_time2 ans acc1 acc2 acc1_d acc2_d;

@@ -67,7 +67,7 @@ function [ valid ] = show_statistic( trackerW,pair, left_delta_time,right_delta_
     end
     
     dist_s2_crash_point=[];
-    for i=1:size(timer2,2);
+    for i=1:size(timer2,2)
         s2=states2(1:3,i);
         %======计算和虚拟碰撞点的距离===========
         dist_s2_crash_point=[dist_s2_crash_point; norm(s2-p2_crash)];

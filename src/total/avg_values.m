@@ -9,13 +9,15 @@ for tracker_index=1:size(trackerW,2)
     
     v_a_dot=sum(velocity(:,1:end-1).*acc,1);
     a_tan=v_a_dot./velocity_norm(1:end-1);
+    a_tan_d=a_tan(2:end)-a_tan(1:end-1);
     a_norm=(abs(acc_norm).^2.-abs(a_tan).^2).^(1/2);
-    temp=[temp (a_tan(velocity_norm(1:end-1)>1.5))];
+    a_norm_d=a_norm(2:end)-a_norm(1:end-1);
+    temp=[temp (a_norm(velocity_norm(1:end-2)>1.5))];
  
 end
 figure;
-%temp=temp(temp<5);
-%temp=temp(temp>-5);
+temp=temp(temp<5);
+temp=temp(temp>-5);
 
 
 mean(temp)
