@@ -118,16 +118,22 @@ for index1=1:size(trackerW,2)
         time_strategy=Bs(Bs_ind).time_strategy;
         pos_crash_A=Bs(Bs_ind).pos_a;
         
-        if time_strategy==-1
+        if time_strategy~=-1
             continue;
         end;
-        if time_detect+3>time_strategy
+        
+        if time_detect+3>time_crash
             continue;
         end;
-        B_count=B_count+1;
+        
+        
         states2=trackerW(index2).states(1:3,:);
         velocity2=states2(1:3,2:end)-states2(1:3,1:end-1);
         timer2=trackerW(index2).start:trackerW(index2).end;   
+        if timer2(end)<time_crash || timer1(end)<time_crash
+            continue;
+        end;
+        B_count=B_count+1;
         [ v2_norm,acc2_norm, acc2_on_v2_past, acc2_on_v2_past_norm, r2, v2_ang, acc2_ang] = calc_trace_attribute( states2 );
   
         dist_s2_crash_point=[];
@@ -158,46 +164,45 @@ for index1=1:size(trackerW,2)
         
         subplot(2,5,1);
         plot(timer2(1:end-2),v2_norm,'b');       
-        plotSig(v1_norm,v2_norm,time_detect,time_strategy,timer1,timer2,2)
+        plotSig(v1_norm,v2_norm,time_detect,time_crash,timer1,timer2,2)
         
         subplot(2,5,6);
         plot(timer2(1:end-2),acc2_norm,'b');
-        plotSig(acc1_norm,acc2_norm,time_detect,time_strategy,timer1,timer2,2)
+        plotSig(acc1_norm,acc2_norm,time_detect,time_crash,timer1,timer2,2)
         
         subplot(2,5,4);
         plot(timer_both(1:end-1),norm_v2_on_v1,'b');
-        plotSig([],norm_v2_on_v1,time_detect,time_strategy,timer_both,timer_both,2)
+        plotSig([],norm_v2_on_v1,time_detect,time_crash,timer_both,timer_both,2)
         
         subplot(2,5,7);
         acc2_on_v2_past_norm_d=acc2_on_v2_past_norm(2:end)-acc2_on_v2_past_norm(1:end-1);
         plot(timer2(1:end-3),acc2_on_v2_past_norm_d,'b');
-        plotSig(acc1_on_v1_past_norm_d,acc2_on_v2_past_norm_d,time_detect,time_strategy,timer1,timer2,3)
+        plotSig(acc1_on_v1_past_norm_d,acc2_on_v2_past_norm_d,time_detect,time_crash,timer1,timer2,3)
         
         subplot(2,5,8);
         plot(timer2(2:end-2),v2_ang,'b');
-        plotSig(v1_ang,v2_ang,time_detect,time_strategy,timer1,timer2,3)
+        plotSig(v1_ang,v2_ang,time_detect,time_crash,timer1,timer2,3)
   
         subplot(2,5,5);
         plot(timer_both(1:end-1),angl_v1_v2,'k');
-        plotSig([],angl_v1_v2,time_detect,time_strategy,timer_both,timer_both,2)
+        plotSig([],angl_v1_v2,time_detect,time_crash,timer_both,timer_both,2)
         
         subplot(2,5,9);
         plot(timer_both,dist_s1_s2,'k');
-        plotSig([],dist_s1_s2,time_detect,time_strategy,timer_both,timer_both,2)
+        plotSig([],dist_s1_s2,time_detect,time_crash,timer_both,timer_both,2)
         
         subplot(2,5,3);
         plot(timer2(1:end-2),acc2_on_v2_past,'b');
-        plotSig(acc1_on_v1_past,acc2_on_v2_past,time_detect,time_strategy,timer1,timer2,2)
+        plotSig(acc1_on_v1_past,acc2_on_v2_past,time_detect,time_crash,timer1,timer2,2)
         
         subplot(2,5,2);
         plot(timer2(1:end-2),acc2_on_v2_past_norm,'b');
-        plotSig(acc1_on_v1_past_norm,acc2_on_v2_past_norm,time_detect,time_strategy,timer1,timer2,2)
+        plotSig(acc1_on_v1_past_norm,acc2_on_v2_past_norm,time_detect,time_crash,timer1,timer2,2)
         
         subplot(2,5,10);
         plot(timer2(1:end),dist_s2_crash_point,'b');
         plotSig([],dist_s2_crash_point,time_detect,time_crash,timer1,timer2,2)
-    
-        
+
     end;
     if B_count~=0
         saveas(gca,['../../statistics/' num2str(index1) '.png']);
@@ -205,15 +210,17 @@ for index1=1:size(trackerW,2)
     end;
 end;
 
-function ret=plotSig(vectorA,vectorB,time_detect,time_strategy,timerA,timerB,delta)
+function ret=plotSig(vectorA,vectorB,time_detect,time_crash,timerA,timerB,delta)
     if ~isempty(vectorA)
         plot(time_detect,vectorA(find(timerA==time_detect)),'bp');
-        plot(time_strategy,vectorA(find(timerA==time_strategy)),'rh');
+        if timerA(end)-delta>=time_crash
+            plot(time_crash,vectorA(find(timerA==time_crash)),'rp');
+        end;
     end;
     if timerB(end)-delta>=time_detect
         plot(time_detect,vectorB(find(timerB==time_detect)),'bp');
     end;
-    if timerB(end)-delta>=time_strategy
-        plot(time_strategy,vectorB(find(timerB==time_strategy)),'rh');
+    if timerB(end)-delta>=time_crash
+        plot(time_crash,vectorB(find(timerB==time_crash)),'rp');
     end
 end

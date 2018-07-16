@@ -1,23 +1,23 @@
-left_delta_time=7;
+left_delta_time=5;
 right_delta_time=4;
 
 threshold_acc_min=1000;
 threshold_acc_d_min=1000;
-threshold_acc_norm_min=1.51;
-threshold_acc_norm_d_min=0.47;
-threshold_acc_tan_min=1000;
+threshold_acc_norm_min=0.6;
+threshold_acc_norm_d_min=0.3;
+threshold_acc_tan_min=0.4;
 threshold_acc_tan_d_min=1000;
 
 threshold_acc_max=1000;
 threshold_acc_d_max=1000;
-threshold_acc_norm_max=3.0;
-threshold_acc_norm_d_max=1.75;
+threshold_acc_norm_max=1000;
+threshold_acc_norm_d_max=1000;
 threshold_acc_tan_max=1000;
 threshold_acc_tan_d_max=1000;
 
-threshold_avg_acc=-inf;
-threshold_avg_acc_norm=0.22;
-threshold_avg_acc_tan=-inf;
+threshold_avg_acc=inf;
+threshold_avg_acc_norm=inf;
+threshold_avg_acc_tan=inf;
 minium_crash_distance=7;
 
 record_crash_washed=filter_strategy_detector(trackerW,record_crash,left_delta_time,right_delta_time);
@@ -87,10 +87,10 @@ for outer_index=1:size(record_crash_washed,2)
     
     index_strategy=-1;
     for i=index_post_strategy:-1:1
-        if i<index_post_strategy && norm(acc1_norm(:,i))>norm(acc1_norm(:,i))
-            index_strategy=i;
-            break;
-        end;
+%         if i<index_post_strategy && norm(acc1_norm(:,i))>norm(acc1_norm(:,i))
+%             index_strategy=i;
+%             break;
+%         end;
         if norm(acc1_tan(:,i))<threshold_avg_acc_tan
             index_strategy=i;
             break;
@@ -533,8 +533,8 @@ for i=1:size(feature_str_crash_distribution,2)
     size(bin_str_crash_distribution,2)
     bin_str_crash_distribution(feature_str_crash_distribution(1,i))=bin_str_crash_distribution(feature_str_crash_distribution(1,i))+1;
 end
-for i=1:size(bin_str_crash_distribution,2)-1
-    if regularize_divider(i)<15
+for i=1:size(bin_str_crash_distribution,2)
+    if regularize_divider(i)<20 || bin_str_crash_distribution(i)<20
         bin_str_crash_distribution(i)=0;
     else
         bin_str_crash_distribution(i)=bin_str_crash_distribution(i)/regularize_divider(i);

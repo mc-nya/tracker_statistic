@@ -12,7 +12,7 @@ for tracker_index=1:size(trackerW,2)
     a_tan_d=a_tan(2:end)-a_tan(1:end-1);
     a_norm=(abs(acc_norm).^2.-abs(a_tan).^2).^(1/2);
     a_norm_d=a_norm(2:end)-a_norm(1:end-1);
-    temp=[temp (a_norm(velocity_norm(1:end-2)>1.5))];
+    temp=[temp (a_tan(velocity_norm(1:end-2)>1.5))];
  
 end
 figure;

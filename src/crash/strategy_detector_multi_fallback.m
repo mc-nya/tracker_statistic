@@ -1,7 +1,3 @@
-% finding flies whose states(including velocity, accelaration) 
-% less than epsilon, epsilon is defined as threshold_XXX_min
-% to use this script, change threshold_XXX_min to specific epsilon
-
 % 在其他很多代码中用来确保发现未来碰撞处左右轨迹长度的最小值
 % 此处仅使用right_delta_time用来延长取得轨迹长度
 % 所取的轨迹范围为 检测点+碰撞时间+right_delta_time
@@ -9,20 +5,27 @@ left_delta_time=7;
 right_delta_time=4;
 
 % 确认为策略机动的最小值
-threshold_acc_min=inf;
-threshold_acc_d_min=inf;
-threshold_acc_norm_min=0.525;
-threshold_acc_norm_d_min=inf;
-threshold_acc_tan_min=inf;
-threshold_acc_tan_d_min=inf;
+threshold_acc_min=1000;
+threshold_acc_d_min=1000;
+threshold_acc_norm_min=1000;
+threshold_acc_norm_d_min=1000;
+threshold_acc_tan_min=0.7;
+threshold_acc_tan_d_min=1000;
 
 % 确认为策略机动的最大值
 threshold_acc_max=inf;
 threshold_acc_d_max=inf;
 threshold_acc_norm_max=inf;
 threshold_acc_norm_d_max=inf;
-threshold_acc_tan_max=inf;
+threshold_acc_tan_max=2;
 threshold_acc_tan_d_max=inf;
+
+% 旧代码，以前用来向前推的，已经不使用
+threshold_avg_acc=inf;
+threshold_avg_acc_norm=inf;
+threshold_avg_acc_tan=inf;
+
+
 
 for index1=1:size(trackerW,2)
     Bs=trackerW(index1).Bs;
@@ -64,25 +67,43 @@ for index1=1:size(trackerW,2)
         acc1_norm=acc1_on_v1_past_norm;
     
         % 计算是否有任一条件超过落在阈值范围内，一旦发现，即停止
-        index_strategy=-1;
+        index_post_strategy=-1;
         for i=1:size(acc1_tan_d,2)
             if(norm(acc1_tan(:,i))>threshold_acc_tan_min && norm(acc1_tan(:,i))<threshold_acc_tan_max) ...,
                     || (norm(acc1_tan_d(:,i))>threshold_acc_tan_d_min && norm(acc1_tan_d(:,i))<threshold_acc_tan_d_max)
-                index_strategy=i;
+                index_post_strategy=i;
                 break;
             end
             if(norm(acc1(:,i))>threshold_acc_min && norm(acc1(:,i))<threshold_acc_max)  ...,
                     || (norm(acc1_d(:,i))>threshold_acc_d_min && norm(acc1_d(:,i))<threshold_acc_d_max)
-                index_strategy=i;
+                index_post_strategy=i;
                 break;
             end
             if(norm(acc1_norm(:,i))>threshold_acc_norm_min && norm(acc1_norm(:,i))<threshold_acc_norm_max) ...,
                     || (norm(acc1_norm_d(:,i))>threshold_acc_norm_d_min && norm(acc1_norm_d(:,i))<threshold_acc_norm_d_max)
-                index_strategy=i;
+                index_post_strategy=i;
                 break;
             end
         end 
-        
+
+        % 旧代码，向前推时间，当threshold_avg_XXX设为inf时，该部分代码被短路
+        index_strategy=-1;
+        for i=index_post_strategy:-1:1
+            if norm(acc1_tan(:,i))<threshold_avg_acc_tan
+                index_strategy=i;
+                break;
+            end
+            if norm(acc1(:,i))<threshold_avg_acc
+                index_strategy=i;
+                break;
+            end
+            if norm(acc1_norm(:,i))<threshold_avg_acc_norm
+                index_strategy=i;
+                break;
+            end
+        end
+        clear index_post_strategy;
+
         if index_strategy~=-1
             trackerW(index1).Bs(Bs_ind).time_strategy=timer1(index_strategy);
             trackerW(index1).Bs(Bs_ind).pos_strategy=states1(:,index_strategy);
@@ -94,6 +115,15 @@ for index1=1:size(trackerW,2)
     end
         
 end
+
+
+
+
+
+
+
+
+
 
 
 

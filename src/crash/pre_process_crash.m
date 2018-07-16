@@ -1,10 +1,17 @@
+%------parameters---------
+% maxium distance of two flies which we consider as a 'pair'
+maxium_detection_distance=100;
+% minium distance that we consider as a 'collision'
+minium_crash_distance=5;
+
 %-----wash the data----------------
 k=[trackers(:).end]-[trackers(:).start];
 trackerW=trackers(k>20);
 
 %-----------sort the trace by time---------------
+% record_t is a struct which record fruit flies in each frame
+% 'id' means the index of the fruit fly in tr
 record_t=struct('id',{[]},'states',{[]});
-record_crash=struct('id',{[]},'states',{[]});
 for i=1:max([trackers(:).end])
     record_t(i).id=[];
     record_t(i).states=[];
@@ -23,6 +30,7 @@ for i = 1:size(trackerW,2)
     end
 end
 
+record_crash=struct('id',{[]},'states',{[]});
 %-----------find crash pair---------------------
 result_num=0;
 for time=1:size(record_t,2)
@@ -30,9 +38,6 @@ for time=1:size(record_t,2)
     velocity=[record_t(time).velocity(:,:)];
    
     id=record_t(time).id;
-    
-    maxium_detection_distance=100;
-    minium_crash_distance=5;
     for i=1:size(id,2)
         for j=1:size(id,2)
             if i==j
@@ -47,8 +52,12 @@ for time=1:size(record_t,2)
                 min_dist_t=sqrt(norm(delta_p)^2-min_dist^2)/norm(delta_v);
                 pos_crash_A=states(1:3,i)+min_dist_t*velocity(1:3,i);
                 pos_crash_B=states(1:3,j)+min_dist_t*velocity(1:3,j);
-                %filter by minium distance
+                % filter by minium distance 
+                % let delta_t>0 to ensure two flies will collision in the
+                % future but not the past
                 if min_dist<minium_crash_distance && min(delta_t)>0
+                    
+                    % B_record is a temp struct for recording Bs
                     B_record=[];
                     B_record.index_a=id(i);
                     B_record.index_b=id(j);
@@ -57,8 +66,13 @@ for time=1:size(record_t,2)
                     B_record.min_dist=min_dist;
                     B_record.pos_a=pos_crash_A;
                     B_record.pos_b=pos_crash_B;
-                    %trackerW(id(i)).Bs=[trackerW(id(i)).Bs; [id(i) id(j) time min_dist]];
+                    
+                    % add new result in trackerW, which is the method used
+                    % to record multiple Bs in newest version
                     trackerW(id(i)).Bs=[trackerW(id(i)).Bs; B_record];
+                    
+                    %add new result in record_crash, fallback method for
+                    %only two fruit flies
                     result_num=result_num+1;
                     record_crash(result_num).time_start=time;
                     record_crash(result_num).time_end=time+min_dist_t;
@@ -74,7 +88,7 @@ for time=1:size(record_t,2)
     end
 end
 
-clear time;
+clear time B_record;
 clear states velocity start k;
 clear delta_p delta_v delta_t min_dist min_dist_t;
 clear current i id j;
