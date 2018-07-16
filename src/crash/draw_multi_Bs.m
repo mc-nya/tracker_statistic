@@ -59,4 +59,6 @@ for index1=1:size(trackerW,2)
         plot3(pos_crash_A(1),pos_crash_A(2),pos_crash_A(3),'dr');
         
     end;
+    saveas(gca,['../../trace/' num2str(index1) '.png']);
+    saveas(gca,['../../trace/' num2str(index1) '.fig']);
 end;
