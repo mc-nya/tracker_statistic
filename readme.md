@@ -28,7 +28,7 @@
 
 3. 绘制统计曲线
         
-        分别使用draw_multi_Bs.m draw_multi_Bs_less_than_epsilon.m对 2 中的结果进行可视化。
+        分别使用draw_multi_Bs_attribute.m draw_multi_attribute_Bs_less_than_e.m对 2 中的结果进行可视化。
         将产生fig和png图片，默认保存在上上层目录的statistics文件夹中（与src目录同级）。
         使用前必须先创建该文件夹。
 
@@ -39,7 +39,7 @@
 
 4. 绘制轨迹
         
-        使用draw_multi_trace.m 绘制轨迹，默认保存在上上层目录的trace文件夹中。
+        使用draw_multi_Bs_trace.m 或 draw_multi_Bs_trace_less_than_e.m 绘制轨迹，默认保存在上上层目录的trace文件夹中。
 
         图中符号说明：
         红色轨迹为A果蝇，蓝色轨迹为B果蝇。

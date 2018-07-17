@@ -3,9 +3,9 @@ right_delta_time=4;
 
 threshold_acc_min=1000;
 threshold_acc_d_min=1000;
-threshold_acc_norm_min=0.6;
-threshold_acc_norm_d_min=0.3;
-threshold_acc_tan_min=0.4;
+threshold_acc_norm_min=1000;
+threshold_acc_norm_d_min=1000;
+threshold_acc_tan_min=0.27;
 threshold_acc_tan_d_min=1000;
 
 threshold_acc_max=1000;

@@ -15,6 +15,7 @@ for index1=1:size(trackerW,2)
     patch('XData',[states1(1,:) NaN],'YData',[states1(2,:) NaN],'ZData',[states1(3,:) NaN], ...,
                'facecolor','none','edgecolor','r'); 
    
+    title('法向加速度小于0.525 切向加速度小于0.274');
 
     
     for Bs_ind=1:size(Bs,1)

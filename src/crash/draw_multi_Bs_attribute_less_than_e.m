@@ -205,8 +205,8 @@ for index1=1:size(trackerW,2)
 
     end;
     if B_count~=0
-        saveas(gca,['../../statistics/' num2str(index1) '.png']);
-        saveas(gca,['../../statistics/' num2str(index1) '.fig']);
+        saveas(gca,['../../statistics_less_than_e/' num2str(index1) '.png']);
+        saveas(gca,['../../statistics_less_than_e/' num2str(index1) '.fig']);
     end;
 end;
 

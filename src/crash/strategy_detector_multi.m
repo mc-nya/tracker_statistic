@@ -8,15 +8,15 @@
 left_delta_time=7;
 right_delta_time=4;
 
-% 确认为策略机动的最小值
+% 视为策略机动的最小值
 threshold_acc_min=inf;
 threshold_acc_d_min=inf;
 threshold_acc_norm_min=0.525;
 threshold_acc_norm_d_min=inf;
-threshold_acc_tan_min=inf;
+threshold_acc_tan_min=0.274;
 threshold_acc_tan_d_min=inf;
 
-% 确认为策略机动的最大值
+% 视为策略机动的最大值
 threshold_acc_max=inf;
 threshold_acc_d_max=inf;
 threshold_acc_norm_max=inf;
